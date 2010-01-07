@@ -14,12 +14,12 @@ var
   duration = (+new Date()) - start,
   perSec = (NUM/duration*1000).toFixed(0);
 
-puts('MEMORY: '+NUM+' writes in '+duration+' ms ('+perSec+' per sec)');
+puts('MEMORY: '+NUM+' writes in '+duration+'ms '+"\t"+'('+perSec+' per sec)');
 
 process.addListener('exit', function() {
   var
     duration = ((+new Date()) - start) / 1000,
-    perSec = (NUM/duration).toFixed(2);
+    perSec = (NUM/duration).toFixed(0);
 
-  puts('DISK: '+NUM+' writes in '+duration.toFixed(2)+' sec ('+perSec+' per sec)');
+  puts('DISK: '+NUM+' writes in '+duration.toFixed(2)+'sec '+"\t"+'('+perSec+' per sec)');
 });
