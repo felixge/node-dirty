@@ -8,11 +8,14 @@ posts.load().addCallback(function() {
     title: "Awesome post",
   });
   
-  posts.add({
+  var post = {
     title: "Lame post",
-  });
-  
-  var awesome = posts.filter(function(key, doc) {
+  };
+  posts.add(post);
+
+  p(posts.get(post._key).title);
+
+  var awesome = posts.filter(function(doc) {
     return !!doc.title.match(/awesome/i);
   });
 
