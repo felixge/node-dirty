@@ -16,7 +16,7 @@ var
 
 puts('MEMORY: '+NUM+' writes in '+duration+' ms '+"\t"+'('+perSec+' per sec)');
 
-process.addListener('exit', function() {
+posts.addListener('flush', function() {
   var
     duration = ((+new Date()) - start) / 1000,
     perSec = (NUM/duration).toFixed(0);
