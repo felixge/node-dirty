@@ -2,12 +2,11 @@ process.mixin(require('sys'));
 var
   Dirty = require('../lib/dirty').Dirty,
   NUM = 100000,
-  posts = new Dirty('posts'),
-  doc = {str: 'This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256'};
+  posts = new Dirty('posts');
 
 var start = +new Date();
 for (var i = 0; i < NUM; i++) {
-  posts.set(i, doc);
+  posts.set(i, {str: 'This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256'});
 }
 
 var
