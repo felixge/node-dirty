@@ -4,38 +4,40 @@ var
   FILE = path.join(path.dirname(__filename), 'dirty.dirty'),
   EXPECTED_FLUSHES = 2,
 
+  TEST_KEY = 'my-key',
+  TEST_DOC = {hello: 'world'},
+  TEST_DOC2 = {another: "doc"},
+
   db = new Dirty(FILE, {flushInterval: 10}),
-  testKey = 'my-key',
-  testDoc = {hello: 'world'},
-  testDoc2 = {another: "doc"},
-  r,
 
   timesFLushed = 0,
   didSetCallback = false,
   didAddCallback = false,
-  didCloseCallback = false;
+  didCloseCallback = false,
 
-db.set(testKey, testDoc, function(doc) {
+  r;
+
+db.set(TEST_KEY, TEST_DOC, function(doc) {
   didSetCallback = true;
-  assert.strictEqual(testDoc, doc);
+  assert.strictEqual(TEST_DOC, doc);
 });
-assert.equal(testKey, testDoc._key);
+assert.equal(TEST_KEY, TEST_DOC._key);
 
-r = db.get(testKey);
-assert.strictEqual(r, testDoc);
+r = db.get(TEST_KEY);
+assert.strictEqual(r, TEST_DOC);
 
-r = db.add(testDoc2, function(doc) {
+r = db.add(TEST_DOC2, function(doc) {
   didAddCallback = true;
-  assert.strictEqual(testDoc2, doc);
+  assert.strictEqual(TEST_DOC2, doc);
 });
-assert.equal(testDoc2, db.get(r));
+assert.equal(TEST_DOC2, db.get(r));
 assert.equal(2, db.length);
 
 r = db.filter(function(doc) {
   return ('another' in doc);
 });
-assert.deepEqual(r, [testDoc2]);
-assert.strictEqual(r[0], testDoc2);
+assert.deepEqual(r, [TEST_DOC2]);
+assert.strictEqual(r[0], TEST_DOC2);
 
 db.addListener('flush', function() {
   timesFLushed++;
@@ -49,8 +51,8 @@ db.addListener('flush', function() {
 
   posix.cat(FILE).addCallback(function(data) {
     var expected =
-      JSON.stringify(testDoc)+"\n"+
-      JSON.stringify(testDoc2)+"\n";
+      JSON.stringify(TEST_DOC)+"\n"+
+      JSON.stringify(TEST_DOC2)+"\n";
 
     assert.equal(expected, data);
 
