@@ -29,7 +29,7 @@ posts.addListener('flush', function() {
 
   while (true) {
     posts.filter(function(doc) {
-      i++;
+      i = i + (doc._key % 2);
     });
 
     if (+new Date() - start >= 1000) {
@@ -41,5 +41,5 @@ posts.addListener('flush', function() {
     duration = (+new Date()) - start,
     perSec = (i/duration*1000).toFixed(0);
 
-  puts('Filtered '+i+' docs in '+duration+' ms '+"\t"+'('+perSec+' per sec)');
+  puts('Filtered '+(i*2)+' docs in '+duration+' ms '+"\t"+'('+perSec+' per sec)');
 });
