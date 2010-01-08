@@ -1,13 +1,17 @@
 process.mixin(require('./common'));
 
 var
-  db = new Dirty('set-test'),
+  db = new Dirty('set-test', {flushInterval: 10}),
   testKey = 'my-key',
   testDoc = {hello: 'world'},
   testDoc2 = {another: "doc"},
-  r;
+  r,
 
-db.set(testKey, testDoc);
+  didCallback = false;
+
+db.set(testKey, testDoc, function() {
+  didCallback = true;
+});
 assert.equal(testKey, testDoc._key);
 
 r = db.get(testKey);
@@ -22,3 +26,11 @@ r = db.filter(function(doc) {
 });
 assert.deepEqual(r, [testDoc2]);
 assert.strictEqual(r[0], testDoc2);
+
+db.addListener('flush', function() {
+  db.close();
+});
+
+process.addListener('exit', function() {
+  assert.ok(didCallback);
+});
