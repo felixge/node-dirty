@@ -9,17 +9,23 @@ var
   testDoc2 = {another: "doc"},
   r,
 
-  didCallback = false;
+  didSetCallback = false,
+  didAddCallback = false,
+  didCloseCallback = false;
 
-db.set(testKey, testDoc, function() {
-  didCallback = true;
+db.set(testKey, testDoc, function(doc) {
+  didSetCallback = true;
+  assert.strictEqual(testDoc, doc);
 });
 assert.equal(testKey, testDoc._key);
 
 r = db.get(testKey);
 assert.strictEqual(r, testDoc);
 
-r = db.add(testDoc2);
+r = db.add(testDoc2, function(doc) {
+  didAddCallback = true;
+  assert.strictEqual(testDoc2, doc);
+});
 assert.equal(testDoc2, db.get(r));
 assert.equal(2, db.length);
 
@@ -30,7 +36,10 @@ assert.deepEqual(r, [testDoc2]);
 assert.strictEqual(r[0], testDoc2);
 
 db.addListener('flush', function() {
-  db.close();
+  db.close().addCallback(function() {
+    didCloseCallback = true;
+  });
+
   posix.cat(FILE).addCallback(function(data) {
     posix.unlink(FILE);
 
@@ -43,5 +52,7 @@ db.addListener('flush', function() {
 });
 
 process.addListener('exit', function() {
-  assert.ok(didCallback);
+  assert.ok(didSetCallback);
+  assert.ok(didAddCallback);
+  assert.ok(didCloseCallback);
 });
