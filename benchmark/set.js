@@ -29,6 +29,4 @@ posts.addListener('flush', function() {
     perSec = (i/duration).toFixed(0);
 
   puts('DISK:   '+i+' writes in '+duration.toFixed(2)+' sec '+"\t"+'('+perSec+' per sec)');
-
-  posts.close();
 });

@@ -39,6 +39,4 @@ posts.addListener('flush', function() {
     perSec = (i/duration*1000).toFixed(0);
 
   puts('Filtered '+i+' docs in '+duration+' ms '+"\t"+'('+perSec+' per sec)');
-
-  posts.close();
 });

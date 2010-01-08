@@ -22,8 +22,4 @@ posts.load().addCallback(function(length) {
   });
 
   p(awesome);
-
-  posts.addListener('flush', function() {
-    posts.close();
-  });
 });

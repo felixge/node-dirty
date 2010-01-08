@@ -2,6 +2,7 @@ process.mixin(require('./common'));
 
 var
   FILE = path.join(path.dirname(__filename), 'set-test'),
+  EXPECTED_FLUSHES = 2,
 
   db = new Dirty(FILE, {flushInterval: 10}),
   testKey = 'my-key',
@@ -9,6 +10,7 @@ var
   testDoc2 = {another: "doc"},
   r,
 
+  timesFLushed = 0,
   didSetCallback = false,
   didAddCallback = false,
   didCloseCallback = false;
@@ -36,22 +38,28 @@ assert.deepEqual(r, [testDoc2]);
 assert.strictEqual(r[0], testDoc2);
 
 db.addListener('flush', function() {
-  db.close().addCallback(function() {
-    didCloseCallback = true;
-  });
+  timesFLushed++;
+  if (timesFLushed === EXPECTED_FLUSHES) {
+    posix.unlink(FILE);
+    db.close().addCallback(function() {
+      didCloseCallback = true;
+    });
+    return;
+  }
 
   posix.cat(FILE).addCallback(function(data) {
-    posix.unlink(FILE);
-
     var expected =
       JSON.stringify(testDoc)+"\n"+
       JSON.stringify(testDoc2)+"\n";
 
     assert.equal(expected, data);
+
+    db.add({third: 'doc'});
   });
 });
 
 process.addListener('exit', function() {
+  assert.equal(EXPECTED_FLUSHES, timesFLushed);
   assert.ok(didSetCallback);
   assert.ok(didAddCallback);
   assert.ok(didCloseCallback);
