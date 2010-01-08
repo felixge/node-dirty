@@ -2,44 +2,60 @@ process.mixin(require('sys'));
 var
   path = require('path'),
 
-  DURATION = 1000,
+  DURATION = 10000,
   FILE = path.join(path.dirname(__filename), 'filter.dirty'),
 
   Dirty = require('../lib/dirty').Dirty,
   posts = new Dirty(FILE)
   start = +new Date(),
-  i = 0;
+  docsAdded = 0;
 
 while (true) {
-  posts.set(i, {str: 'This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256'});
-  i++;
+  posts.set(docsAdded, {str: 'This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256'});
+  docsAdded++;
 
-  if (i % 1000 && ((+new Date() - start) > DURATION)) {
+  if (docsAdded % 1000 && ((+new Date() - start) > DURATION)) {
     break;
   }
 }
-puts(i+' docs added in '+((+new Date()) - start)+'ms');
+
+// Add one more doc if we didn't add an even amount of documents
+if (docsAdded % 2) {
+  posts.set(docsAdded, {str: 'This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256'});
+  docsAdded++;
+}
+
+puts(docsAdded+' docs added in '+((+new Date()) - start)+'ms');
 
 posts.addListener('flush', function() {
   puts("flushed to disc, starting filtering ...\n");
 
   var
     start = +new Date(),
-    i = 0;
+    docsFiltered = 0,
+    docsReturned = 0;
 
   while (true) {
-    posts.filter(function(doc) {
-      i = i + (doc._key % 2);
-    });
+    docsReturned = posts.filter(function(doc) {
+      return doc._key % 2;
+    }).length;
 
-    if (+new Date() - start >= 1000) {
+    // Make sure we got the expected amount of docs returned
+    if ((docsReturned * 2) !== docsAdded) {
+      throw new Error('no cheating!'+JSON.stringify([docsReturned, docsAdded]));
+    }
+
+    // Multiplying by 2 since only half the docs were returned
+    docsFiltered += (docsReturned * 2);
+
+    if (+new Date() - start >= DURATION) {
       break;
     }
   }
 
   var
     duration = (+new Date()) - start,
-    perSec = (i/duration*1000).toFixed(0);
+    perSec = (docsFiltered/duration*1000).toFixed(0);
 
-  puts('Filtered '+(i*2)+' docs in '+duration+' ms '+"\t"+'('+perSec+' per sec)');
+  puts('Filtered '+docsFiltered+' docs in '+duration+' ms '+"\t"+'('+perSec+' per sec)');
 });
