@@ -3,7 +3,7 @@ var
   path = require('path'),
 
   DURATION = 1000,
-  FILE = FILE = path.join(path.dirname(__filename), 'filter.dirty'),
+  FILE = path.join(path.dirname(__filename), 'filter.dirty'),
 
   Dirty = require('../lib/dirty').Dirty,
   posts = new Dirty(FILE)
