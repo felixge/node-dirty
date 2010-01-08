@@ -1,7 +1,9 @@
 process.mixin(require('./common'));
 
 var
-  db = new Dirty('set-test', {flushInterval: 10}),
+  FILE = path.join(path.dirname(__filename), 'set-test'),
+
+  db = new Dirty(FILE, {flushInterval: 10}),
   testKey = 'my-key',
   testDoc = {hello: 'world'},
   testDoc2 = {another: "doc"},
@@ -29,6 +31,15 @@ assert.strictEqual(r[0], testDoc2);
 
 db.addListener('flush', function() {
   db.close();
+  posix.cat(FILE).addCallback(function(data) {
+    posix.unlink(FILE);
+
+    var expected =
+      JSON.stringify(testDoc)+"\n"+
+      JSON.stringify(testDoc2)+"\n";
+
+    assert.equal(expected, data);
+  });
 });
 
 process.addListener('exit', function() {
