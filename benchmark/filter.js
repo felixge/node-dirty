@@ -1,9 +1,12 @@
 process.mixin(require('sys'));
 var
+  path = require('path'),
+
   DURATION = 1000,
+  FILE = FILE = path.join(path.dirname(__filename), 'filter.dirty'),
 
   Dirty = require('../lib/dirty').Dirty,
-  posts = new Dirty('posts')
+  posts = new Dirty(FILE)
   start = +new Date(),
   i = 0;
 

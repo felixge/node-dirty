@@ -1,7 +1,7 @@
 process.mixin(require('./common'));
 
 var
-  FILE = path.join(path.dirname(__filename), 'set-test'),
+  FILE = path.join(path.dirname(__filename), 'dirty.dirty'),
   EXPECTED_FLUSHES = 2,
 
   db = new Dirty(FILE, {flushInterval: 10}),

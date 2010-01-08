@@ -1,7 +1,7 @@
 process.mixin(require('sys'));
 var
   Dirty = require('../lib/dirty').Dirty,
-  posts = new Dirty('posts', {flushInterval: 10});
+  posts = new Dirty('posts.dirty', {flushInterval: 10});
 
 posts.load().addCallback(function(length) {
   puts(posts.length+' posts');
