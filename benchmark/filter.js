@@ -1,14 +1,23 @@
 process.mixin(require('sys'));
 var
   Dirty = require('../lib/dirty').Dirty,
-  NUM = 100000,
-  posts = new Dirty('posts');
+  posts = new Dirty('posts')
+  start = +new Date(),
+  i = 0;
 
-for (var i = 0; i < NUM; i++) {
+while (true) {
   posts.set(i, {str: 'This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256'});
+  i++;
+
+  if (i % 1000 && ((+new Date() - start) > 1000)) {
+    break;
+  }
 }
+puts(i+' docs added in '+((+new Date()) - start)+'ms');
 
 posts.addListener('flush', function() {
+  puts("flushed to disc, starting filtering ...\n");
+
   var
     start = +new Date(),
     i = 0;
