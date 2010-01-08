@@ -13,9 +13,15 @@ posts.addListener('flush', function() {
     start = +new Date(),
     i = 0;
 
-  posts.filter(function(doc) {
-    i++;
-  });
+  while (true) {
+    posts.filter(function(doc) {
+      i++;
+    });
+
+    if (+new Date() - start >= 1000) {
+      break;
+    }
+  }
 
   var
     duration = (+new Date()) - start,
