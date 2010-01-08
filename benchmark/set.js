@@ -1,5 +1,7 @@
 process.mixin(require('sys'));
 var
+  DURATION = 1000,
+
   Dirty = require('../lib/dirty').Dirty,
   posts = new Dirty('posts')
   start = +new Date(),
@@ -9,7 +11,8 @@ while (true) {
   posts.set(i, {str: 'This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256'});
   i++;
 
-  if (i % 1000 && ((+new Date() - start) > 1000)) {
+  // Only run new Date() every 1000 records
+  if (i % 1000 && ((+new Date() - start) > DURATION)) {
     break;
   }
 }
