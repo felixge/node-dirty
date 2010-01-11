@@ -15,7 +15,7 @@ while (true) {
   i++;
 
   // Only run new Date() every 1000 records
-  if (i % 1000 && ((+new Date() - start) > DURATION)) {
+  if ((i % 1000 === 0) && ((+new Date() - start) > DURATION)) {
     break;
   }
 }

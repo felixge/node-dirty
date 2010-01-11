@@ -1,8 +1,9 @@
 process.mixin(require('sys'));
+
 var
   path = require('path'),
 
-  DURATION = 10000,
+  DURATION = 1000,
   FILE = path.join(path.dirname(__filename), 'filter.dirty'),
 
   Dirty = require('../lib/dirty').Dirty,
@@ -14,7 +15,7 @@ while (true) {
   posts.set(docsAdded, {str: 'This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256 byte string. This is a 256'});
   docsAdded++;
 
-  if (docsAdded % 1000 && ((+new Date() - start) > DURATION)) {
+  if ((docsAdded % 1000 === 0) && ((+new Date() - start) > DURATION)) {
     break;
   }
 }
