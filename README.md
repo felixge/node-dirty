@@ -74,11 +74,11 @@ Creates a new dirty database. If `filename` does not exist, a new file is create
 The default `options` are:
 
     {
-      flushInterval: 1000,
+      flushInterval: 10,
       flushLimit: 100,
     }
 
-This means that documents are written to disk in bulks of 100 or after 1000ms, whichever occurs first.
+This means that documents are written to disk in bulks of 100 or after 10ms, whichever occurs first.
 
 ### Dirty.length
 
