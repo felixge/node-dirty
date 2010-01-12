@@ -18,6 +18,9 @@ db.add({});
 
 db.addListener('flush', function() {
   timesFlushed++;
+  if (timesFlushed == EXPECTED_FLUSHES) {
+    posix.unlink(FILE);
+  }
 });
 
 process.addListener('exit', function() {
