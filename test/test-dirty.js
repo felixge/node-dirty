@@ -65,6 +65,4 @@ process.addListener('exit', function() {
   assert.ok(didSetCallback);
   assert.ok(didAddCallback);
   assert.ok(didCloseCallback);
-
-  puts('[done]');
 });

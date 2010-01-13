@@ -9,7 +9,9 @@ var
 
   db = new Dirty(FILE),
 
-  didRemoveCallback = false;;
+  didRemoveCallback = false,
+
+  r;
 
 db.set(TEST_KEY, TEST_DOC);
 assert.ok(db.get(TEST_KEY));
@@ -20,7 +22,24 @@ db.remove(TEST_KEY, function() {
 
   assert.strictEqual(undefined, db.get(TEST_KEY));
   assert.equal(1, db.length);
+
+  r = 0;
+  db.filter(function(doc) {
+    assert.ok(!('hello' in doc));
+    r++;
+  });
+  assert.equal(1, r);
 });
+
+assert.equal(0, db.length);
+
+r = 0;
+db.filter(function(doc) {
+  assert.ok(!('hello' in doc));
+  r++;
+});
+assert.equal(1, r);
+
 db.add(TEST_DOC2);
 assert.strictEqual(undefined, db.get(TEST_KEY));
 assert.equal(1, db.length);
