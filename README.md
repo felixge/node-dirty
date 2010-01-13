@@ -6,7 +6,7 @@ A key value store for [node.js](http://nodejs.org/) that is simple, fast & dirty
 
 * It is the minimal viable key value store (< 250 LoC)
 * You embedded it into your actual applications
-* The database format is newline separated JSON
+* The db format is append only newline separated JSON
 * No network support out of the box (seriously)
 * It can only store js objects, primitives and arrays need to be wrapped in an object
 
