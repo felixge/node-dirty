@@ -4,7 +4,7 @@ var
   FILE = path.join(path.dirname(__filename), 'dirty.dirty'),
   EXPECTED_FLUSHES = 2,
 
-  TEST_KEY = 'my-key',
+  TEST_ID = 'my-id',
   TEST_DOC = {hello: 'world'},
   TEST_DOC2 = {another: "doc"},
 
@@ -17,13 +17,13 @@ var
 
   r;
 
-db.set(TEST_KEY, TEST_DOC, function(doc) {
+db.set(TEST_ID, TEST_DOC, function(doc) {
   didSetCallback = true;
   assert.strictEqual(TEST_DOC, doc);
 });
-assert.equal(TEST_KEY, TEST_DOC._key);
+assert.equal(TEST_ID, TEST_DOC._id);
 
-r = db.get(TEST_KEY);
+r = db.get(TEST_ID);
 assert.strictEqual(r, TEST_DOC);
 
 r = db.add(TEST_DOC2, function(doc) {

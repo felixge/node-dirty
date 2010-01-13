@@ -1,10 +1,10 @@
 # Dirty - NoSQL for the little man
 
-A key value store for [node.js](http://nodejs.org/) that is simple, fast & dirty.
+A id value store for [node.js](http://nodejs.org/) that is simple, fast & dirty.
 
 ## What makes dirty dirty?
 
-* It is the minimal viable key value store (< 250 LoC)
+* It is the minimal viable id value store (< 250 LoC)
 * You embedded it into your actual applications
 * The database format is newline separated JSON
 * No network support out of the box (seriously)
@@ -19,14 +19,14 @@ A key value store for [node.js](http://nodejs.org/) that is simple, fast & dirty
       posts = new Dirty('test.dirty');
 
     posts.add({hello: 'dirty world!'});
-    posts.set('my-key', {looks: 'nice'});
+    posts.set('my-id', {looks: 'nice'});
 
 Output:
 
     $ node example1.js
     $ cat test.dirty 
-    {"hello":"dirty world!","_key":"3b8f86684573afd0b4ceba34f7b0566e"}
-    {"looks":"nice","_key":"my-key"}
+    {"hello":"dirty world!","_id":"3b8f86684573afd0b4ceba34f7b0566e"}
+    {"looks":"nice","_id":"my-id"}
 
 ### Reload the database from disk
 
@@ -36,13 +36,13 @@ Output:
 
     posts.load()
       .addCallback(function() {
-        p(posts.get('my-key'));
+        p(posts.get('my-id'));
       });
 
 Output:
 
     $ node example2.js
-    {"looks": "nice", "_key": "my-key"}
+    {"looks": "nice", "_id": "my-id"}
 
 ### Filter documents from the db
 
@@ -61,7 +61,7 @@ Output:
 Output:
 
     $ node hello.js
-    [{"hello": "dirty world!", "_key": "3b8f86684573afd0b4ceba34f7b0566e"}]
+    [{"hello": "dirty world!", "_id": "3b8f86684573afd0b4ceba34f7b0566e"}]
 
 That's it! No more features. Dirty is quite minimal. It encourages you to use it in a lego-style fashion.
 
@@ -88,7 +88,7 @@ Returns how many documents are currently loaded.
 
 Returns a promise that finishes once all records have been read from the current database.
 
-You can already start querying or using a partially loaded database. However, documents overwrite their keys as they are loaded, so be careful.
+You can already start querying or using a partially loaded database. However, documents overwrite their ids as they are loaded, so be careful.
 
 ### Dirty.close()
 
@@ -96,40 +96,40 @@ Properly closes the database file and removes any remaining timers.
 
 ### Dirty.add(doc, [callback])
 
-Adds a new document to the database and assigns it a uuid as the key.
+Adds a new document to the database and assigns it a uuid as the id.
 
 `doc` needs to be a JavaScript object. Other data types are not allowed, but can be included inside the object as far as they can be serialized to JSON.
 
 `callback` is an optional function that is called once the document has been written to disk.
 
-The function returns the uuid created for the record. It also modifies the `doc` object that is being passed in by adding a `_key` property.
+The function returns the uuid created for the record. It also modifies the `doc` object that is being passed in by adding a `_id` property.
 
 Example:
 
     var doc = {hello: 'world'};
     var uuid = db.add(doc);
     p(uuid); // "3b8f86684573afd0b4ceba34f7b0566e"
-    p(doc._key == uuid); // true
+    p(doc._id == uuid); // true
 
-### Dirty.set(key, doc, [callback])
+### Dirty.set(id, doc, [callback])
 
 Identical to `Dirty.add()` except:
 
-* `key` is used instead of a uuid
+* `id` is used instead of a uuid
 * The function has no return value
 
-### Dirty.remove(key, [callback])
+### Dirty.remove(id, [callback])
 
-Removes given `key` and fires `callback` once the change has flushed to disk.
+Removes given `id` and fires `callback` once the change has flushed to disk.
 
-**Important:** A removed key will show up in `Dirty.fiter()` as `{_deleted: true}` until it has been removed from disk.
+**Important:** A removed id will show up in `Dirty.fiter()` as `{_deleted: true}` until it has been removed from disk.
 
-* `key` is used instead of a uuid
+* `id` is used instead of a uuid
 * The function has no return value
 
-### Dirty.get(key)
+### Dirty.get(id)
 
-Returns the object for the given key or `undefined` if it is not set.
+Returns the object for the given id or `undefined` if it is not set.
 
 ### Dirty.filter(callback)
 
@@ -143,7 +143,7 @@ Example:
     var docs = posts.filter(function(doc) {
       return doc.title.match(/awesome/);
     });
-    p(docs); // [{"title": "awesome post", "_key": "2895ed039b68455e23a202627537030c"}]
+    p(docs); // [{"title": "awesome post", "_id": "2895ed039b68455e23a202627537030c"}]
 
 ### Dirty.flush()
 

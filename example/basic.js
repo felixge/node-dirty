@@ -15,7 +15,7 @@ posts.load().addCallback(function(length) {
   };
   posts.add(post);
 
-  puts(posts.get(post._key).title);
+  puts(posts.get(post._id).title);
 
   var awesome = posts.filter(function(doc) {
     return !!doc.title.match(/awesome/i);

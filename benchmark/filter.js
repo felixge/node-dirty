@@ -35,7 +35,7 @@ posts.addListener('flush', function() {
 
   while (true) {
     docsReturned = posts.filter(function(doc) {
-      return doc._key % 2;
+      return doc._id % 2;
     }).length;
 
     // Make sure we got the expected amount of docs returned

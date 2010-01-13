@@ -3,7 +3,7 @@ process.mixin(require('./common'));
 var
   FILE = path.join(path.dirname(__filename), 'remove.dirty'),
 
-  TEST_KEY = 'my-key',
+  TEST_ID = 'my-id',
   TEST_DOC = {hello: 'world'},
   TEST_DOC2 = {another: 'test doc'},
 
@@ -13,14 +13,14 @@ var
 
   r;
 
-db.set(TEST_KEY, TEST_DOC);
-assert.ok(db.get(TEST_KEY));
+db.set(TEST_ID, TEST_DOC);
+assert.ok(db.get(TEST_ID));
 assert.equal(1, db.length);
 
-db.remove(TEST_KEY, function() {
+db.remove(TEST_ID, function() {
   didRemoveCallback = true;
 
-  assert.strictEqual(undefined, db.get(TEST_KEY));
+  assert.strictEqual(undefined, db.get(TEST_ID));
   assert.equal(1, db.length);
 
   r = 0;
@@ -41,14 +41,14 @@ db.filter(function(doc) {
 assert.equal(1, r);
 
 db.add(TEST_DOC2);
-assert.strictEqual(undefined, db.get(TEST_KEY));
+assert.strictEqual(undefined, db.get(TEST_ID));
 assert.equal(1, db.length);
 
 db.addListener('flush', function() {
   posix.cat(FILE).addCallback(function(data) {
     posix.unlink(FILE).addCallback(function() {
       var expected =
-        JSON.stringify({_deleted: true, _key: TEST_KEY})+"\n"+
+        JSON.stringify({_deleted: true, _id: TEST_ID})+"\n"+
         JSON.stringify(TEST_DOC2)+"\n";
 
       assert.equal(expected, data);
