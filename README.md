@@ -75,7 +75,7 @@ The default `options` are:
 
     {
       flushInterval: 10,
-      flushLimit: 100,
+      flushLimit: 1000,
     }
 
 This means that documents are written to disk in bulks of 100 or after 10ms, whichever occurs first.
