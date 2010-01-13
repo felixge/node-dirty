@@ -159,13 +159,13 @@ dirty ships with a small set of benchmarks which can be invoked by running `make
 
     $ make benchmark
     node benchmark/filter.js
-    845000 docs added in 1106ms
+    763000 docs added in 1030ms
     flushed to disc, starting filtering ...
 
-    Filtered 10985000 docs in 1051 ms 	(10451951 per sec)
+    Filtered 14497000 docs in 1026 ms 	(14129630 per sec)
     node benchmark/set.js
-    MEMORY: 845000 writes in 1110 ms 	(761261 per sec)
-    DISK:   845000 writes in 16.27 sec 	(51933 per sec)
+    MEMORY: 763000 writes in 1031 ms 	(740058 per sec)
+    DISK:   763000 writes in 14.68 sec 	(51965 per sec)
 
 Explanation:
 
