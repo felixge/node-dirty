@@ -2,6 +2,8 @@
 
 A key value store for [node.js](http://nodejs.org/) that is simple, fast & dirty.
 
+Dirty stores all documents in memory like [Redis](http://code.google.com/p/redis/) while allowing you to iterate over them in JavaScript similar to [CouchDB](http://couchdb.apache.org/).
+
 ## What makes dirty dirty?
 
 * It is the minimal viable key value store (< 250 LoC)
