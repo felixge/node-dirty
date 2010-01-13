@@ -1,10 +1,10 @@
 # Dirty - NoSQL for the little man
 
-A id value store for [node.js](http://nodejs.org/) that is simple, fast & dirty.
+A key value store for [node.js](http://nodejs.org/) that is simple, fast & dirty.
 
 ## What makes dirty dirty?
 
-* It is the minimal viable id value store (< 250 LoC)
+* It is the minimal viable key value store (< 250 LoC)
 * You embedded it into your actual applications
 * The database format is newline separated JSON
 * No network support out of the box (seriously)
