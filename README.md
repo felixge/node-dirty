@@ -4,7 +4,7 @@ A key value store for [node.js](http://nodejs.org/) that is simple, fast & dirty
 
 ## What makes dirty dirty?
 
-* It is the minimal viable key value store (< 200 LoC)
+* It is the minimal viable key value store (< 250 LoC)
 * You embedded it into your actual applications
 * The database format is newline separated JSON
 * No network support out of the box (seriously)
@@ -118,6 +118,15 @@ Identical to `Dirty.add()` except:
 * `key` is used instead of a uuid
 * The function has no return value
 
+### Dirty.remove(key, [callback])
+
+Removes given `key` and fires `callback` once the change has flushed to disk.
+
+**Important:** A removed key will show up in `Dirty.fiter()` as `{_deleted: true}` until it has been removed from disk.
+
+* `key` is used instead of a uuid
+* The function has no return value
+
 ### Dirty.get(key)
 
 Returns the object for the given key or `undefined` if it is not set.
@@ -149,15 +158,14 @@ The `'flush'` event is emitted whenever the database gets into full sync with it
 dirty ships with a small set of benchmarks which can be invoked by running `make benchmark`. On my eager laptop the output usually looks like this for me:
 
     $ make benchmark
-    find benchmark/*.js | xargs -n 1 -t node
     node benchmark/filter.js
-    103000 docs added in 1004ms
+    845000 docs added in 1106ms
     flushed to disc, starting filtering ...
 
-    Filtered 13493000 docs in 1011 ms 	(13346192 per sec)
+    Filtered 10985000 docs in 1051 ms 	(10451951 per sec)
     node benchmark/set.js
-    MEMORY: 106000 writes in 1055 ms 	(100474 per sec)
-    DISK:   106000 writes in 1.51 sec 	(70013 per sec)
+    MEMORY: 845000 writes in 1110 ms 	(761261 per sec)
+    DISK:   845000 writes in 16.27 sec 	(51933 per sec)
 
 Explanation:
 
