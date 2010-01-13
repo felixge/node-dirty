@@ -1,12 +1,10 @@
-process.mixin(require('sys'));
+process.mixin(require('../test/common'));
 var
-  path = require('path'),
-
   DURATION = 1000,
   FILE = path.join(path.dirname(__filename), 'set.dirty'),
 
   Dirty = require('../lib/dirty').Dirty,
-  posts = new Dirty(FILE)
+  posts = new Dirty(FILE, {flushLimit: 1000000})
   start = +new Date(),
   i = 0;
 
@@ -32,4 +30,6 @@ posts.addListener('flush', function() {
     perSec = (i/duration).toFixed(0);
 
   puts('DISK:   '+i+' writes in '+duration.toFixed(2)+' sec '+"\t"+'('+perSec+' per sec)');
+
+  posix.unlink(FILE);
 });

@@ -1,13 +1,10 @@
-process.mixin(require('sys'));
-
+process.mixin(require('../test/common'));
 var
-  path = require('path'),
-
   DURATION = 1000,
   FILE = path.join(path.dirname(__filename), 'filter.dirty'),
 
   Dirty = require('../lib/dirty').Dirty,
-  posts = new Dirty(FILE)
+  posts = new Dirty(FILE, {flushLimit: 1000000})
   start = +new Date(),
   docsAdded = 0;
 
@@ -59,4 +56,6 @@ posts.addListener('flush', function() {
     perSec = (docsFiltered/duration*1000).toFixed(0);
 
   puts('Filtered '+docsFiltered+' docs in '+duration+' ms '+"\t"+'('+perSec+' per sec)');
+
+  posix.unlink(FILE);
 });
