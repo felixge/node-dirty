@@ -157,7 +157,7 @@ The `'flush'` event is emitted whenever the database gets into full sync with it
 
 ## Benchmarks
 
-dirty ships with a small set of benchmarks which can be invoked by running `make benchmark`. On my eager laptop the output usually looks like this for me:
+dirty ships with a small set of benchmarks which can be invoked by running `make benchmark`. On my eager laptop the output usually looks like this:
 
     $ make benchmark
     node benchmark/filter.js
@@ -172,7 +172,7 @@ dirty ships with a small set of benchmarks which can be invoked by running `make
 Explanation:
 
 * `filter.js` adds as many records in 1000ms as possible (like `set.js`), and then iterates over them for 1000ms filtering out 50% of the items and outputs the results.
-* `set.js` uses the `Dirty.set()` method to add objects to the database as possible for 1000ms and outputs the results
+* `set.js` uses the `Dirty.set()` method to add as many objects to the database as possible for 1000ms and outputs the results
 
 That is not a very realistic load scenario and not really comparable to other stores that do much more (like networking). If anything, you can learn that I care about the performance of dirty by providing a benchmark as part of the distribution.
 
