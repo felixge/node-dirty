@@ -126,9 +126,6 @@ Removes given `id` and fires `callback` once the change has flushed to disk.
 
 **Important:** A removed id will show up in `Dirty.fiter()` as `{_deleted: true}` until it has been removed from disk.
 
-* `id` is used instead of a uuid
-* The function has no return value
-
 ### Dirty.get(id)
 
 Returns the object for the given id or `undefined` if it is not set.
