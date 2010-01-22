@@ -69,9 +69,9 @@ That's it! No more features. Dirty is quite minimal. It encourages you to use it
 
 ## API Documentation
 
-### new Dirty(filename, [options])
+### new Dirty([filename, options])
 
-Creates a new dirty database. If `filename` does not exist, a new file is created.
+Creates a new dirty database. If `filename` does not exist, a new file is created. If `filename` is not specified, dirty operates in-memory only (useful for testing).
 
 The default `options` are:
 
