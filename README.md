@@ -12,6 +12,18 @@ Dirty stores all documents in memory like [Redis](http://code.google.com/p/redis
 * No network support out of the box (seriously)
 * It can only store js objects, primitives and arrays need to be wrapped in an object
 
+## The big picture
+
+Key-value stores are stupid by design. You ask them trivial questions like "What is the value of key X?" and they are pretty fast and good with answering those.
+
+However, beyond caching, those are not the kind of questions you want to ask your database. And you certainly don't want to find the answer by asking tons of trivial questions over a network, just to compute the final result on the client side. It's not good for your network nor a lot of fun to do.
+
+Yes, some key-value stores will offer you some sort of "query" language or ways to pre-compute answers to frequently asked questions. But honestly, those are doomed to suffer from the same problems as relational databases or will be limited in the complexity of the questions they can answer.
+
+How does dirty avoid those problems? By cheating. It avoids the whole network trouble by simply not shipping with a network interface. This discourages asking dirty trivial questions over a network. The need for a query language is avoided giving you access to the raw data using JavaScript.
+
+Dirty allows people to build their very own, very fast databases that do exactly what they need and nothing else. Making those high-level databases available to your system is trivial, you just create a REST service with node. As an extra, you can also use node's non-blocking I/O to query other datasources.
+
 ## Examples
 
 ### Create database with 2 documents:
