@@ -1,7 +1,7 @@
 process.mixin(require('sys'));
 
 [
-  'posix',
+  'fs',
   'path',
   'assert',
 ].forEach(function(module) {
