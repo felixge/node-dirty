@@ -12,12 +12,13 @@ db
     throw err;
   });
 
-for (var i = 0; i < i)
-db.set('key', 'value', function(e) {
-  callbacks.set++;
-  assert.equal(null, e);
-});
-assert.equal('value', db.docs['key']);
+for (var i = 0; i < 10; i++) {
+  db.set('key-'+i, 'val-'+i, function(e) {
+    callbacks.set++;
+    assert.equal(null, e);
+  });
+  assert.equal('val-'+i, db.get('key-'+i));
+}
 
 process.addListener('exit', function() {
   for (var k in callbacks) {
