@@ -2,9 +2,12 @@ process.mixin(require('./common'));
 
 var
   FILE = __dirname+'/set-test.dirty',
+  CREATE_DOCS = 10,
+
   db = new Dirty(FILE),
   callbacks = {
-    set: -10,
+    set: -CREATE_DOCS,
+    drain: -1,
   };
 
 db
@@ -12,13 +15,32 @@ db
     throw err;
   });
 
-for (var i = 0; i < 10; i++) {
+for (var i = 0; i < CREATE_DOCS; i++) {
   db.set('key-'+i, 'val-'+i, function(e) {
     callbacks.set++;
     assert.equal(null, e);
   });
   assert.equal('val-'+i, db.get('key-'+i));
 }
+
+db.addListener('drain', function() {
+  callbacks.drain++;
+
+  var docCount = 0;
+
+  fs.readFileSync(FILE)
+    .split("\n")
+    .slice(0, -1)
+    .forEach(function(chunk) {
+      var doc = JSON.parse(chunk);
+      assert.equal(db.get(doc.id), doc.value);
+
+      docCount++;
+    });
+
+  assert.equal(CREATE_DOCS, docCount);
+});
+
 
 process.addListener('exit', function() {
   for (var k in callbacks) {
