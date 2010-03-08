@@ -1,7 +1,7 @@
 process.mixin(require('./common'));
 
 var
-  FILE = __dirname+'/set-test.dirty',
+  FILE = __dirname+'/set.dirty',
   CREATE_DOCS = 10,
 
   db = new Dirty(FILE),

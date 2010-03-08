@@ -1,7 +1,7 @@
 process.mixin(require('./common'));
 
 var
-  FILE = __dirname+'/remove-test.dirty',
+  FILE = __dirname+'/remove.dirty',
 
   db = new Dirty(FILE),
   callbacks = {
