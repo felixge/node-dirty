@@ -3,7 +3,7 @@ process.mixin(require('./common'));
 var
   FILE = __dirname+'/remove.dirty',
 
-  db = new Dirty(FILE),
+  db = new Dirty(FILE, {flushLimit: 1}),
   callbacks = {
     remove: -1,
     set: -1,
