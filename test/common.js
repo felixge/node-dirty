@@ -1,14 +1,16 @@
-process.mixin(require('sys'));
+var sys = require('sys');
+global.puts = sys.puts;
+global.p = sys.p;
 
 [
   'fs',
   'path',
   'assert',
 ].forEach(function(module) {
-  GLOBAL[module] = require(module);
+  global[module] = require(module);
 });
 
-GLOBAL.Dirty = require('../lib/dirty').Dirty;
+global.Dirty = require('../lib/dirty').Dirty;
 
 fs.readdirSync(__dirname).forEach(function(file) {
   if (file.match(/\.dirty$/)) {
