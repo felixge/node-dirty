@@ -1,5 +1,5 @@
 test:
-	@find test/test-*.js | xargs -n 1 -t node
+	@find test/simple/test-*.js | xargs -n 1 -t node
 
 benchmark:
 	@find benchmark/*.dirty | xargs rm
