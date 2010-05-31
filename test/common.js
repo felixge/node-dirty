@@ -1,4 +1,4 @@
-process.mixin(require('sys'));
+sys = require('sys');
 
 [
   'fs',
