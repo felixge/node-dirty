@@ -11,8 +11,6 @@ benchmark-dirty:
 	@find benchmark/dirty/*.js | xargs -n 1 -t node
 
 benchmark-all: benchmark-v8 benchmark-php benchmark-dirty
-	@find benchmark/*.js | xargs -n 1 -t node
-
 benchmark: benchmark-dirty
 
 .PHONY: test benchmark
