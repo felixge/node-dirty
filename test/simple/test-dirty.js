@@ -1,5 +1,6 @@
 require('../common');
 var Dirty = require('dirty'),
+    EventEmitter = require('events').EventEmitter,
     dirtyLoad = Dirty.prototype.load,
     gently,
     dirty;
@@ -14,7 +15,10 @@ var Dirty = require('dirty'),
     });
     var dirty = new Dirty(PATH);
 
+    assert.ok(dirty instanceof EventEmitter);
     assert.deepEqual(dirty._docs, {});
+    assert.deepEqual(dirty._queue, []);
+    assert.deepEqual(dirty.flushLimit, 1000);
   })();
 
   (function testWithoutNew() {
@@ -38,13 +42,24 @@ function test(fn) {
 }
 
 test(function load() {
-  dirtyLoad();
-});
+  (function testNoPath() {
+    gently.expect(HIJACKED.fs, 'createWriteStream', 0);
+    dirtyLoad.call(dirty);
+  })();
 
-test(function set() {
-  var KEY = 'example', VAL = {};
-  dirty.set(KEY, VAL);
-  assert.strictEqual(dirty._docs[KEY], VAL);
+  (function testWithPath() {
+    var PATH = dirty.path = '/dirty.db',
+        WRITE_STREAM = {};
+
+    gently.expect(HIJACKED.fs, 'createWriteStream', function (path, options) {
+      assert.equal(path, PATH);
+      assert.equal(options.encoding, 'utf-8');
+      return WRITE_STREAM;
+    });
+    dirtyLoad.call(dirty);
+
+    assert.strictEqual(dirty.writeStream, WRITE_STREAM);
+  })();
 });
 
 test(function get() {
@@ -52,4 +67,57 @@ test(function get() {
   dirty._docs[KEY] = VAL;
 
   assert.strictEqual(dirty.get(KEY), VAL);
+});
+
+test(function set() {
+  (function testNoCallback() {
+    var KEY = 'example', VAL = {};
+    gently.expect(dirty, '_maybeFlush');
+    dirty.set(KEY, VAL);
+    assert.strictEqual(dirty._docs[KEY], VAL);
+    assert.strictEqual(dirty._queue[0], KEY);
+  })();
+
+  (function testCallback() {
+    var KEY = 'example', VAL = {}, CB = function() {};
+    gently.expect(dirty, '_maybeFlush');
+    dirty.set(KEY, VAL, CB);
+    assert.strictEqual(dirty._queue[1][0], KEY);
+    assert.strictEqual(dirty._queue[1][1], CB);
+  })();
+});
+
+test(function _maybeFlush() {
+  (function testNothingToFlush() {
+    gently.expect(dirty, 'flush', 0);
+    dirty._maybeFlush();
+  })();
+
+  (function testFlush() {
+    dirty.path = '/foo/bar';
+    dirty.flushLimit = 1;
+    dirty._queue = [1];
+
+    gently.expect(dirty, 'flush');
+    dirty._maybeFlush();
+  })();
+
+  (function testOneFlushAtATime() {
+    dirty.flushing = true;
+
+    gently.expect(dirty, 'flush', 0);
+    dirty._maybeFlush();
+  })();
+
+  (function testNoFlushingWithoutPath() {
+    dirty.flushing = false;
+    dirty.path = null;
+
+    gently.expect(dirty, 'flush', 0);
+    dirty._maybeFlush();
+  })();
+});
+
+test(function flush() {
+  dirty.flush();
 });
