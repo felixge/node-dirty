@@ -1,4 +1,5 @@
 var COUNT = 1e7,
+    sys = require('sys'),
     o = {};
 
 for (var i = 0; i < COUNT; i++) {
@@ -13,7 +14,8 @@ for (var i = 0; i < COUNT; i++) {
 }
 
 var ms = +new Date - start,
-    mhz = (COUNT / (ms / 1000)) / 1e6,
+    mhz = ((COUNT / (ms / 1000)) / 1e6).toFixed(2),
     million = COUNT / 1e6;
 
-console.log('%d Mhz (%d million in %d ms)', mhz.toFixed(2), million, ms);
+// Can't use console.log() since since I also test this in ancient node versions
+sys.puts(mhz+' Mhz ('+million+' million in '+ms+' ms)');
