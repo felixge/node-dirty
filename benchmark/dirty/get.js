@@ -1,14 +1,15 @@
-var COUNT = 1e7,
-    sys = require('sys'),
-    o = {};
+require('../../test/common');
+var COUNT = 1e6,
+    dirty = require('dirty')(),
+    sys = require('sys');
 
 for (var i = 0; i < COUNT; i++) {
-  o[i] = i;
+  dirty.set(i, i);
 }
 
 var start = +new Date;
 for (var i = 0; i < COUNT; i++) {
-  if (o[i] !== i) {
+  if (dirty.get(i) !== i) {
     throw new Error('implementation fail');
   }
 }
@@ -19,3 +20,4 @@ var ms = +new Date - start,
 
 // Can't use console.log() since since I also test this in ancient node versions
 sys.puts(mhz+' Mhz ('+million+' million in '+ms+' ms)');
+

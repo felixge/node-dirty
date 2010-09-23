@@ -1,4 +1,4 @@
-var COUNT = 1e7,
+var COUNT = 1e6,
     sys = require('sys'),
     o = {};
 
@@ -7,8 +7,8 @@ for (var i = 0; i < COUNT; i++) {
 }
 
 var start = +new Date;
-for (var i = 0; i < COUNT; i++) {
-  if (o[i] !== i) {
+for (var i in o) {
+  if (o[i] != i) {
     throw new Error('implementation fail');
   }
 }

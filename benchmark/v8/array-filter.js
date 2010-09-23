@@ -9,7 +9,7 @@ for (var i = 0; i < COUNT; i++) {
 var start = +new Date;
 a.filter(function(val, i) {
   if (val !== i) {
-    throw new Error();
+    throw new Error('implementation fail');
   }
 });
 

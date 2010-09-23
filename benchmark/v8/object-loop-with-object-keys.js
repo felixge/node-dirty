@@ -1,4 +1,4 @@
-var COUNT = 1e7,
+var COUNT = 1e6,
     sys = require('sys'),
     o = {};
 
@@ -6,9 +6,9 @@ for (var i = 0; i < COUNT; i++) {
   o[i] = i;
 }
 
-var start = +new Date;
-for (var i = 0; i < COUNT; i++) {
-  if (o[i] !== i) {
+var start = +new Date, keys = Object.keys(o), length = keys.length;
+for (var i = 0; i < keys.length; i++) {
+  if (o[keys[i]] != i) {
     throw new Error('implementation fail');
   }
 }
