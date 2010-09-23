@@ -18,7 +18,8 @@ var Dirty = require('dirty'),
     assert.ok(dirty instanceof EventEmitter);
     assert.deepEqual(dirty._docs, {});
     assert.deepEqual(dirty._queue, []);
-    assert.deepEqual(dirty.flushLimit, 1000);
+    assert.strictEqual(dirty.flushLimit, 1000);
+    assert.strictEqual(dirty.writeBundle, 100);
   })();
 
   (function testWithoutNew() {
@@ -119,5 +120,28 @@ test(function _maybeFlush() {
 });
 
 test(function flush() {
+  var WRITE_STREAM = dirty.writeStream = {}, CB;
+
+  gently.expect(WRITE_STREAM, 'write', function (str, cb) {
+    assert.equal(
+      str,
+      JSON.stringify({key: 'foo', val: 1})+'\n'+
+      JSON.stringify({key: 'bar', val: 2})+'\n'
+   );
+
+    cb();
+  });
+
+  var BAR_CB = gently.expect(function writeCb() {});
+
+  gently.expect(WRITE_STREAM, 'write', function (str, cb) {
+    assert.equal(str, JSON.stringify({key: 'test', val: 3})+'\n');
+    cb();
+  });
+
+  dirty.writeBundle = 2;
+  dirty._docs = {foo: 1, bar: 2, test: 3};
+  dirty._queue = ['foo', ['bar', BAR_CB], 'test'];
+
   dirty.flush();
 });

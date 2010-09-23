@@ -1,6 +1,6 @@
 require('../../test/common');
 var COUNT = 1e6,
-    dirty = require('dirty')(),
+    dirty = require('dirty')(__dirname+'/../../test/tmp/benchmark-set.dirty'),
     sys = require('sys');
 
 var start = +new Date;
