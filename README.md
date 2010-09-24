@@ -91,10 +91,13 @@ if you are only interested in a limited number of records).
 
 This function is blocking and runs at ~4 Mhz.
 
-### dirty event: 'load' ()
+### dirty event: 'load' (length)
 
 Emitted once the database file has finished loading. It is not safe to access
 records before this event fires. Writing records however should be fine.
+
+`length` is the amount of records the database is holding. This only counts each
+key once, even if it had been overwritten.
 
 ### dirty event: 'drain' ()
 

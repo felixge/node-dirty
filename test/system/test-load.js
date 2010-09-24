@@ -11,8 +11,10 @@ db.rm(3);
 
 db.on('drain', function() {
   var db2 = require('dirty')(DB_FILE);
-  db2.on('load', function() {
+  db2.on('load', function(length) {
     loaded = true;
+
+    assert.equal(length, 2);
 
     assert.strictEqual(db2.get(1), 'A');
     assert.strictEqual(db2.get(2), 'B');

@@ -123,6 +123,10 @@ test(function _load() {
       readStreamEmit.data(', "val": "C"}\n');
       assert.equal(dirty.get(3), 'C');
 
+      readStreamEmit.data(
+        JSON.stringify({key: 3, val: 'C2'})+'\n'+
+        JSON.stringify({key: 4, val: undefined})+'\n'
+      );
 
       gently.expect(dirty, 'emit', function (event, err) {
         assert.equal(event, 'error');
@@ -143,8 +147,9 @@ test(function _load() {
     })();
 
     (function testReadEnd() {
-      gently.expect(dirty, 'emit', function (event) {
+      gently.expect(dirty, 'emit', function (event, length) {
         assert.equal(event, 'load');
+        assert.equal(length, 2);
       });
       readStreamEmit.end();
     })();
@@ -173,8 +178,9 @@ test(function _load() {
     })();
 
     (function testReadNonexistingDbError() {
-      gently.expect(dirty, 'emit', function (event) {
+      gently.expect(dirty, 'emit', function (event, length) {
         assert.equal(event, 'load');
+        assert.equal(length, 0);
       });
       readStreamEmit.error({errno: constants.ENOENT})
     })();

@@ -11,7 +11,7 @@ for (var i = 0; i < COUNT; i++) {
 
 dirty.on('drain', function() {
   var start = +new Date;
-  require('dirty')(DB_FILE).on('load', function() {
+  require('dirty')(DB_FILE).on('load', function(length) {
     var ms = +new Date - start,
         mhz = ((COUNT / (ms / 1000)) / 1e3).toFixed(2),
         million = COUNT / 1e6;
@@ -20,6 +20,8 @@ dirty.on('drain', function() {
     sys.puts(mhz+' Hz ('+million+' million in '+ms+' ms)');
 
     loaded = true;
+
+    assert.equal(length, COUNT);
   });
 });
 
