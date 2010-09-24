@@ -85,17 +85,24 @@ test(function load() {
 
       (function testQueueEmpty() {
         dirty._queue = [];
+        dirty.flushing = true;
 
         gently.expect(dirty, 'emit', function (event) {
           assert.strictEqual(event, 'drain');
         });
 
         cb();
+        assert.strictEqual(dirty.flushing, false);
       })();
 
       (function testQueueNotEmpty() {
         dirty._queue = [1];
+        dirty.flushing = true;
+
+        gently.expect(dirty, '_maybeFlush');
+
         cb();
+        assert.strictEqual(dirty.flushing, false);
       })();
     });
 

@@ -14,4 +14,5 @@ var ms = +new Date - start,
 
 // Can't use console.log() since since I also test this in ancient node versions
 sys.puts(mhz+' Mhz ('+million+' million in '+ms+' ms)');
+process.exit(0);
 
