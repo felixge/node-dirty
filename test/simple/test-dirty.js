@@ -2,6 +2,7 @@ require('../common');
 var Dirty = require('dirty'),
     EventEmitter = require('events').EventEmitter,
     dirtyLoad = Dirty.prototype.load,
+    constants = require('constants'),
     gently,
     dirty;
 
@@ -20,6 +21,8 @@ var Dirty = require('dirty'),
     assert.deepEqual(dirty._queue, []);
     assert.strictEqual(dirty.flushLimit, 1000);
     assert.strictEqual(dirty.writeBundle, 100);
+    assert.strictEqual(dirty._writeStream, null);
+    assert.strictEqual(dirty._readStream, null);
   })();
 
   (function testWithoutNew() {
@@ -50,10 +53,28 @@ test(function load() {
 
   (function testWithPath() {
     var PATH = dirty.path = '/dirty.db',
-        WRITE_STREAM = {};
+        READ_STREAM = {},
+        WRITE_STREAM = {},
+        readStreamEmit = {};
+
+    gently.expect(HIJACKED.fs, 'createReadStream', function (path, options) {
+      assert.equal(path, PATH);
+      assert.equal(options.flags, 'r');
+      assert.equal(options.encoding, 'utf-8');
+
+      return READ_STREAM;
+    });
+
+    var EVENTS = ['error', 'data', 'end'];
+    gently.expect(READ_STREAM, 'on', EVENTS.length, function (event, cb) {
+      assert.strictEqual(event, EVENTS.shift());
+      readStreamEmit[event] = cb;
+      return this;
+    });
 
     gently.expect(HIJACKED.fs, 'createWriteStream', function (path, options) {
       assert.equal(path, PATH);
+      assert.equal(options.flags, 'a');
       assert.equal(options.encoding, 'utf-8');
 
       return WRITE_STREAM;
@@ -80,8 +101,77 @@ test(function load() {
 
     dirtyLoad.call(dirty);
 
-    assert.strictEqual(dirty.writeStream, WRITE_STREAM);
+    assert.strictEqual(dirty._writeStream, WRITE_STREAM);
+    assert.strictEqual(dirty._readStream, READ_STREAM);
 
+    (function testReading() {
+      readStreamEmit.data(
+        JSON.stringify({key: 1, val: 'A'})+'\n'+
+        JSON.stringify({key: 2, val: 'B'})+'\n'
+      );
+
+      assert.equal(dirty.get(1), 'A');
+      assert.equal(dirty.get(2), 'B');
+
+      readStreamEmit.data('{"key": 3');
+      readStreamEmit.data(', "val": "C"}\n');
+      assert.equal(dirty.get(3), 'C');
+
+
+      gently.expect(dirty, 'emit', function (event, err) {
+        assert.equal(event, 'error');
+        assert.equal(err.message, 'Could not load corrupted row: {broken');
+      });
+      readStreamEmit.data('{broken\n');
+
+      gently.expect(dirty, 'emit', function (event, err) {
+        assert.equal(event, 'error');
+        assert.equal(err.message, 'Could not load corrupted row: {}');
+      });
+      readStreamEmit.data('{}\n');
+
+      readStreamEmit.data(
+        JSON.stringify({key: 1, val: undefined})+'\n'
+      );
+      assert.ok(!('1' in dirty._docs));
+    })();
+
+    (function testReadEnd() {
+      gently.expect(dirty, 'emit', function (event) {
+        assert.equal(event, 'load');
+      });
+      readStreamEmit.end();
+    })();
+
+    (function testReadEndWithStuffLeftInBuffer() {
+      readStreamEmit.data('foo');
+
+      gently.expect(dirty, 'emit', function (event, err) {
+        assert.equal(event, 'error');
+        assert.equal(err.message, 'Corrupted row at the end of the db: foo');
+      });
+
+      gently.expect(dirty, 'emit', function (event) {
+        assert.equal(event, 'load');
+      });
+      readStreamEmit.end();
+    })();
+
+    (function testReadDbError() {
+      var ERR = new Error('oh oh');
+      gently.expect(dirty, 'emit', function (event, err) {
+        assert.equal(event, 'error');
+        assert.strictEqual(err, ERR);
+      });
+      readStreamEmit.error(ERR)
+    })();
+
+    (function testReadNonexistingDbError() {
+      gently.expect(dirty, 'emit', function (event) {
+        assert.equal(event, 'load');
+      });
+      readStreamEmit.error({errno: constants.ENOENT})
+    })();
   })();
 });
 
@@ -142,7 +232,7 @@ test(function _maybeFlush() {
 });
 
 test(function _flush() {
-  var WRITE_STREAM = dirty.writeStream = {}, CB;
+  var WRITE_STREAM = dirty._writeStream = {}, CB;
   var ERR = new Error('oh oh');
 
   gently.expect(WRITE_STREAM, 'write', function (str, cb) {
