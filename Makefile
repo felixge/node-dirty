@@ -13,4 +13,7 @@ benchmark-dirty:
 benchmark-all: benchmark-v8 benchmark-php benchmark-dirty
 benchmark: benchmark-dirty
 
+clean:
+	@find . -name *.dirty | xargs rm
+
 .PHONY: test benchmark
