@@ -1,4 +1,5 @@
 { "name" : "dirty"
+, "description" : "A tiny & fast key value store with append-only disk log. Ideal for apps with < 1 million records."
 , "version": "0.9.0"
 , "dependencies": {"gently": ">=0.8.0"}
 , "main" : "./lib/dirty"
