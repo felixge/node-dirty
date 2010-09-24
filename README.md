@@ -12,7 +12,7 @@ A tiny & fast key value store with append-only disk log. Ideal for apps with < 1
 
 This module is called dirty because:
 
-* The file format is newline seperated JSON
+* The file format is newline separated JSON
 * Your database lives in the same process as your application, they share memory
 * There is no query language, you just `forEach` through all records
 
