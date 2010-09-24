@@ -55,11 +55,33 @@ test(function load() {
     gently.expect(HIJACKED.fs, 'createWriteStream', function (path, options) {
       assert.equal(path, PATH);
       assert.equal(options.encoding, 'utf-8');
+
       return WRITE_STREAM;
     });
+
+    gently.expect(WRITE_STREAM, 'on', function (event, cb) {
+      assert.strictEqual(event, 'drain');
+
+      (function testQueueEmpty() {
+        dirty._queue = [];
+
+        gently.expect(dirty, 'emit', function (event) {
+          assert.strictEqual(event, 'drain');
+        });
+
+        cb();
+      })();
+
+      (function testQueueNotEmpty() {
+        dirty._queue = [1];
+        cb();
+      })();
+    });
+
     dirtyLoad.call(dirty);
 
     assert.strictEqual(dirty.writeStream, WRITE_STREAM);
+
   })();
 });
 
@@ -121,22 +143,34 @@ test(function _maybeFlush() {
 
 test(function flush() {
   var WRITE_STREAM = dirty.writeStream = {}, CB;
+  var ERR = new Error('oh oh');
 
   gently.expect(WRITE_STREAM, 'write', function (str, cb) {
+    assert.strictEqual(dirty.flushing, true);
     assert.equal(
       str,
       JSON.stringify({key: 'foo', val: 1})+'\n'+
       JSON.stringify({key: 'bar', val: 2})+'\n'
    );
 
-    cb();
+    cb(ERR);
   });
 
-  var BAR_CB = gently.expect(function writeCb() {});
+  var BAR_CB = gently.expect(function writeCb(err) {
+    assert.strictEqual(err, ERR);
+  });
+
+  var ERR2 = new Error('oh oh');
 
   gently.expect(WRITE_STREAM, 'write', function (str, cb) {
     assert.equal(str, JSON.stringify({key: 'test', val: 3})+'\n');
-    cb();
+
+    cb(ERR2);
+  });
+
+  gently.expect(dirty, 'emit', function (event, err) {
+    assert.strictEqual(event, 'error');
+    assert.strictEqual(err, ERR2);
   });
 
   dirty.writeBundle = 2;
@@ -144,4 +178,6 @@ test(function flush() {
   dirty._queue = ['foo', ['bar', BAR_CB], 'test'];
 
   dirty.flush();
+
+  assert.deepEqual(dirty._queue, []);
 });
