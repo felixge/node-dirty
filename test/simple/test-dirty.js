@@ -112,7 +112,7 @@ test(function set() {
 
 test(function _maybeFlush() {
   (function testNothingToFlush() {
-    gently.expect(dirty, 'flush', 0);
+    gently.expect(dirty, '_flush', 0);
     dirty._maybeFlush();
   })();
 
@@ -121,14 +121,14 @@ test(function _maybeFlush() {
     dirty.flushLimit = 1;
     dirty._queue = [1];
 
-    gently.expect(dirty, 'flush');
+    gently.expect(dirty, '_flush');
     dirty._maybeFlush();
   })();
 
   (function testOneFlushAtATime() {
     dirty.flushing = true;
 
-    gently.expect(dirty, 'flush', 0);
+    gently.expect(dirty, '_flush', 0);
     dirty._maybeFlush();
   })();
 
@@ -136,12 +136,12 @@ test(function _maybeFlush() {
     dirty.flushing = false;
     dirty.path = null;
 
-    gently.expect(dirty, 'flush', 0);
+    gently.expect(dirty, '_flush', 0);
     dirty._maybeFlush();
   })();
 });
 
-test(function flush() {
+test(function _flush() {
   var WRITE_STREAM = dirty.writeStream = {}, CB;
   var ERR = new Error('oh oh');
 
@@ -177,7 +177,7 @@ test(function flush() {
   dirty._docs = {foo: 1, bar: 2, test: 3};
   dirty._queue = ['foo', ['bar', BAR_CB], 'test'];
 
-  dirty.flush();
+  dirty._flush();
 
   assert.deepEqual(dirty._queue, []);
 });
