@@ -4,8 +4,6 @@ var DB_FILE = TEST_TMP+'/load.dirty';
     fs = require('fs'),
     loaded = false;
 
-db.flushLimit = 4;
-
 db.set(1, 'A');
 db.set(2, 'B');
 db.set(3, 'C');

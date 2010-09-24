@@ -3,7 +3,6 @@ var DB_FILE = TEST_TMP+'/flush.dirty';
     db = require('dirty')(DB_FILE),
     fs = require('fs');
 
-db.flushLimit = 1;
 db.set('foo', 'bar');
 db.on('drain', function() {
   assert.strictEqual(

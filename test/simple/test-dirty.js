@@ -19,7 +19,6 @@ var Dirty = require('dirty'),
     assert.ok(dirty instanceof EventEmitter);
     assert.deepEqual(dirty._docs, {});
     assert.deepEqual(dirty._queue, []);
-    assert.strictEqual(dirty.flushLimit, 1000);
     assert.strictEqual(dirty.writeBundle, 100);
     assert.strictEqual(dirty._writeStream, null);
     assert.strictEqual(dirty._readStream, null);
@@ -222,8 +221,8 @@ test(function _maybeFlush() {
   })();
 
   (function testFlush() {
+    dirty.flushing = false;
     dirty.path = '/foo/bar';
-    dirty.flushLimit = 1;
     dirty._queue = [1];
 
     gently.expect(dirty, '_flush');
@@ -240,6 +239,15 @@ test(function _maybeFlush() {
   (function testNoFlushingWithoutPath() {
     dirty.flushing = false;
     dirty.path = null;
+
+    gently.expect(dirty, '_flush', 0);
+    dirty._maybeFlush();
+  })();
+
+  (function testNoFlushingWithoutQueue() {
+    dirty.flushing = false;
+    dirty.path = '/foo/bar';
+    dirty._queue = [];
 
     gently.expect(dirty, '_flush', 0);
     dirty._maybeFlush();
