@@ -1,7 +1,7 @@
 require('../common');
 var Dirty = require('dirty'),
     EventEmitter = require('events').EventEmitter,
-    dirtyLoad = Dirty.prototype.load,
+    dirtyLoad = Dirty.prototype._load,
     constants = require('constants'),
     gently,
     dirty;
@@ -11,7 +11,7 @@ var Dirty = require('dirty'),
 
   (function testBasic() {
     var PATH = '/foo/bar';
-    Dirty.prototype.load = gently.expect(function() {
+    Dirty.prototype._load = gently.expect(function() {
       assert.equal(this.path, PATH);
     });
     var dirty = new Dirty(PATH);
@@ -25,7 +25,7 @@ var Dirty = require('dirty'),
   })();
 
   (function testWithoutNew() {
-    Dirty.prototype.load = gently.expect(function() {});
+    Dirty.prototype._load = gently.expect(function() {});
     var dirty = Dirty();
   })();
 
@@ -33,7 +33,7 @@ var Dirty = require('dirty'),
     assert.strictEqual(Dirty, Dirty.Dirty);
   })();
 
-  Dirty.prototype.load = function(){};
+  Dirty.prototype._load = function(){};
   gently.verify();
 })();
 
@@ -44,7 +44,7 @@ function test(fn) {
   gently.verify();
 }
 
-test(function load() {
+test(function _load() {
   (function testNoPath() {
     gently.expect(HIJACKED.fs, 'createWriteStream', 0);
     dirtyLoad.call(dirty);
