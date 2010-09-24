@@ -289,3 +289,20 @@ test(function rm() {
   });
   dirty.rm(KEY, CB);
 });
+
+test(function forEach() {
+  dirty._docs = {1: {}, 2: {}, 3: {}, 4: {}};
+
+  var i = 0;
+  dirty.forEach(function(key, doc) {
+    i++;
+    assert.equal(key, i);
+    assert.strictEqual(doc, dirty._docs[i]);
+
+    if (i == 3) {
+      return false;
+    }
+  });
+
+  assert.equal(i, 3);
+});
