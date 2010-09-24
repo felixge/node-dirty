@@ -19,7 +19,7 @@ var Dirty = require('dirty'),
     assert.ok(dirty instanceof EventEmitter);
     assert.deepEqual(dirty._docs, {});
     assert.deepEqual(dirty._queue, []);
-    assert.strictEqual(dirty.writeBundle, 100);
+    assert.strictEqual(dirty.writeBundle, 1000);
     assert.strictEqual(dirty._writeStream, null);
     assert.strictEqual(dirty._readStream, null);
   })();
