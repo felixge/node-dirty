@@ -198,6 +198,14 @@ test(function set() {
     assert.strictEqual(dirty._queue[1][0], KEY);
     assert.strictEqual(dirty._queue[1][1], CB);
   })();
+
+  (function testUndefinedActsAsRemove() {
+    var KEY = 'example', VAL = undefined;
+    gently.expect(dirty, '_maybeFlush');
+    dirty.set(KEY, VAL);
+
+    assert.ok(!(KEY in dirty._docs));
+  })();
 });
 
 test(function _maybeFlush() {
@@ -270,4 +278,14 @@ test(function _flush() {
   dirty._flush();
 
   assert.deepEqual(dirty._queue, []);
+});
+
+test(function rm() {
+  var KEY = 'foo', CB = function() {};
+  gently.expect(dirty, 'set', function (key, val, cb) {
+    assert.strictEqual(key, KEY);
+    assert.strictEqual(val, undefined);
+    assert.strictEqual(cb, CB);
+  });
+  dirty.rm(KEY, CB);
 });

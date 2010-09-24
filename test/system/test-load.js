@@ -4,10 +4,12 @@ var DB_FILE = TEST_TMP+'/load.dirty';
     fs = require('fs'),
     loaded = false;
 
-db.flushLimit = 2;
+db.flushLimit = 4;
 
 db.set(1, 'A');
 db.set(2, 'B');
+db.set(3, 'C');
+db.rm(3);
 
 db.on('drain', function() {
   var db2 = require('dirty')(DB_FILE);
@@ -16,6 +18,8 @@ db.on('drain', function() {
 
     assert.strictEqual(db2.get(1), 'A');
     assert.strictEqual(db2.get(2), 'B');
+    assert.strictEqual(db2.get(3), undefined);
+    assert.ok(!('3' in db2._docs));
   });
 });
 
