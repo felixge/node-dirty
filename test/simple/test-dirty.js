@@ -2,7 +2,6 @@ require('../common');
 var Dirty = require('dirty'),
     EventEmitter = require('events').EventEmitter,
     dirtyLoad = Dirty.prototype._load,
-    constants = require('constants'),
     gently,
     dirty;
 
@@ -182,7 +181,7 @@ test(function _load() {
         assert.equal(event, 'load');
         assert.equal(length, 0);
       });
-      readStreamEmit.error({errno: constants.ENOENT})
+      readStreamEmit.error({errno: process.binding('net').ENOENT})
     })();
   })();
 });
