@@ -311,7 +311,9 @@ test(function rm() {
 });
 
 test(function forEach() {
-  dirty._docs = {1: {}, 2: {}, 3: {}, 4: {}};
+  for (var i = 1; i <= 4; i++) {
+    dirty.set(i, {});
+  };
 
   var i = 0;
   dirty.forEach(function(key, doc) {

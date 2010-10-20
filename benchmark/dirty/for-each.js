@@ -9,7 +9,7 @@ for (var i = 0; i < COUNT; i++) {
 
 var start = +new Date, i = 0;
 dirty.forEach(function(key, doc) {
-  if (!key) {
+  if (!key && key !== 0) {
     throw new Error('implementation fail');
   }
 });
