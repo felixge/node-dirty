@@ -19,7 +19,11 @@ db.on('drain', function() {
     assert.strictEqual(db2.get(1), 'A');
     assert.strictEqual(db2.get(2), 'B');
     assert.strictEqual(db2.get(3), undefined);
-    assert.strictEqual(db2._keys.length, 2);
+    var count = 0;
+    for (var k in db2._docs) {
+        count++;
+    }
+    assert.strictEqual(count, 2);
     assert.ok(!('3' in db2._docs));
   });
 });
