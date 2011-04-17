@@ -1,9 +1,11 @@
 require('../common');
+fsStub = global.GENTLY.stub('fs');
 var Dirty = require('dirty'),
     EventEmitter = require('events').EventEmitter,
     dirtyLoad = Dirty.prototype._load,
     gently,
     dirty;
+process.setMaxListeners(20);    
 
 (function testConstructor() {
   var gently = new Gently();
@@ -220,29 +222,33 @@ test(function set() {
 });
 
 test(function _maybeFlush() {
+  function setup() {
+      dirty.compacting = false;
+      dirty.flushing = false;
+      dirty.path = '/foo/bar';
+      dirty._queue = [1];
+  }    
+    
   (function testNothingToFlush() {
     gently.expect(dirty, '_flush', 0);
     dirty._maybeFlush();
   })();
 
   (function testFlush() {
-    dirty.flushing = false;
-    dirty.path = '/foo/bar';
-    dirty._queue = [1];
-
+    setup();
     gently.expect(dirty, '_flush');
     dirty._maybeFlush();
   })();
 
   (function testOneFlushAtATime() {
+    setup();
     dirty.flushing = true;
-
     gently.expect(dirty, '_flush', 0);
     dirty._maybeFlush();
   })();
 
   (function testNoFlushingWithoutPath() {
-    dirty.flushing = false;
+    setup();
     dirty.path = null;
 
     gently.expect(dirty, '_flush', 0);
@@ -250,12 +256,18 @@ test(function _maybeFlush() {
   })();
 
   (function testNoFlushingWithoutQueue() {
-    dirty.flushing = false;
-    dirty.path = '/foo/bar';
+    setup();
     dirty._queue = [];
 
     gently.expect(dirty, '_flush', 0);
     dirty._maybeFlush();
+  })();
+  
+  (function testNoFlushingWhileCompacting() {
+      setup();
+      dirty.compacting = true;
+      gently.expect(dirty, '_flush', 0);
+      dirty._maybeFlush();
   })();
 });
 
@@ -299,6 +311,172 @@ test(function _flush() {
 
   assert.deepEqual(dirty._queue, []);
 });
+
+test(function compactPath(){
+    (function testIsPathAppendedWithCompact(){
+        dirty.path = 'foo/bar.baz';
+        assert.strictEqual('foo/bar.baz.compact', dirty._compactPath);
+    })();
+});
+
+test(function compact() {
+        var setup = function() {
+        dirty.compacting = false;
+        dirty.flushing = false;
+        dirty._writeStream = {};
+    };
+    
+    (function testSetsCompactingAndStartsCompacting(){
+        setup();
+        gently.expect(dirty,'_startCompacting');
+        dirty.compact();
+        assert.strictEqual(true, dirty.compacting);
+    })();
+    
+    (function testDoesntDoAnythingWhenAlreadyCompacting() {
+        setup();
+        dirty.compacting = true;
+        gently.expect(dirty, '_startCompacting', 0);
+        dirty.compact();
+    })();
+    
+    (function whenFlushing(oldSetup) {
+        var setup = function() {
+            oldSetup();
+            dirty.flushing = true;
+        };
+        (function testDoesntStart() {
+            setup();
+            gently.expect(dirty._writeStream, "once");
+            gently.expect(dirty, '_startCompacting', 0);
+            dirty.compact();
+        })();
+        
+        (function testSetsCompactingToTrue(){
+            setup();
+            gently.expect(dirty._writeStream, "once");
+            dirty.compact();
+            assert.strictEqual(true, dirty.compacting);
+        })();
+        
+        (function testSignsUpForASingleDrainOnWritestream() {
+            setup();
+            gently.expect(dirty._writeStream, "once", function(a,b){
+                assert.strictEqual("drain", a);
+            })
+            dirty.compact();
+        })();
+        
+        (function testStartsCompactingOnceDrainIsEmitted(){
+            setup();
+            gently.expect(dirty._writeStream, "once", function(a,b){
+                gently.expect(dirty, "_startCompacting");
+                b();
+            });
+            dirty.compact();
+        })();
+    })(setup);
+});
+
+test(function _startCompacting(){
+    var ws = {};
+    function expectWriteStream(){
+        dirty.path = 'foo/bar.baz';
+        gently.expect(fsStub, "createWriteStream", function(path, obj){
+            assert.strictEqual("foo/bar.baz.compact", path);
+            assert.strictEqual('utf-8', obj.encoding);
+            assert.strictEqual('w', obj.flags);
+            return ws;
+        });
+    };
+    function setup(){
+        expectWriteStream();
+        gently.expect(ws, "on", 2);
+        gently.expect(dirty, '_writeCompactedData');
+    };
+   (function testBacksUpAndEmptiesTheQueue(){
+       setup();
+       dirty._queue = [1,2,3];
+       dirty._queueBackup = ["hi", "hello"];
+       dirty._startCompacting();
+       assert.deepEqual([], dirty._queue);
+       assert.deepEqual([1,2,3], dirty._queueBackup); 
+   })();
+   
+   (function testCreatesAWriteStreamToACompactFile(){
+       setup();
+       dirty._startCompacting();
+   })();
+   
+   (function testEmitsCompactingFailedOnWriteError(){
+       expectWriteStream();
+       gently.expect(ws, 'on', function(type, cb){
+           assert.strictEqual('error', type);
+           gently.expect(dirty, 'emit', function(evt){
+               assert.strictEqual('compactingFailed', evt);
+           });
+           cb();
+           gently.expect(ws, 'on');
+           gently.expect(dirty, '_writeCompactedData');           
+       });
+       dirty._startCompacting();
+   })();
+   
+   (function testRenamesCompactFileToOriginalOnDrain(){
+       expectWriteStream();
+       gently.expect(ws, 'on');
+       gently.expect(ws, 'on', function(type, cb){
+           assert.strictEqual('drain', type);
+           gently.expect(dirty, "_moveCompactedDataOverOriginal");
+           cb();
+           gently.expect(dirty,'_writeCompactedData');
+       })
+       dirty._startCompacting();
+   })();
+   
+   (function testPassesWriteStreamToWriteCompactedData(){
+       expectWriteStream();
+       gently.expect(ws, 'on',2);
+       gently.expect(dirty, '_writeCompactedData', function(obj){
+           assert.strictEqual(ws, obj);
+       });
+       dirty._startCompacting();
+   })();
+});
+
+test(function _moveCompactedDataOverOriginal() {
+   (function testRenamesCompactedFileToOriginal(){
+       dirty.path = 'foo/bar.baz'
+       gently.expect(fsStub, 'rename', function(src, dst){
+           assert.strictEqual('foo/bar.baz.compact', src);
+           assert.strictEqual('foo/bar.baz', dst);
+       });
+       dirty._moveCompactedDataOverOriginal();
+   })();
+   
+   (function testEmitsCompactingFailedIfRenameErrorsOut(){
+       gently.expect(fsStub, 'rename', function(a,b,cb){
+           gently.expect(dirty, 'emit', function(evt){
+               assert.strictEqual('compactingFailed', evt);
+           });
+          cb(new Error('')); 
+       });
+       dirty._moveCompactedDataOverOriginal();
+   })(); 
+
+   (function testEmitsCompactedIfRenameErrorsOut(){
+       gently.expect(fsStub, 'rename', function(a,b,cb){
+           gently.expect(dirty, 'emit', function(evt){
+               assert.strictEqual('compacted', evt);
+           });
+          cb(); 
+       });
+       dirty._moveCompactedDataOverOriginal();
+   })(); 
+});
+
+// test(function )
+ 
 
 test(function rm() {
   var KEY = 'foo', CB = function() {};
