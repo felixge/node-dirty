@@ -1,5 +1,4 @@
 require('../common');
-fsStub = global.GENTLY.stub('fs');
 var Dirty = require('dirty'),
     EventEmitter = require('events').EventEmitter,
     dirtyLoad = Dirty.prototype._load,
@@ -54,7 +53,6 @@ test(function _load() {
   (function testWithPath() {
     var PATH = dirty.path = '/dirty.db',
         READ_STREAM = {},
-        WRITE_STREAM = {},
         readStreamEmit = {};
 
     gently.expect(HIJACKED.fs, 'createReadStream', function (path, options) {
@@ -71,44 +69,11 @@ test(function _load() {
       readStreamEmit[event] = cb;
       return this;
     });
-
-    gently.expect(HIJACKED.fs, 'createWriteStream', function (path, options) {
-      assert.equal(path, PATH);
-      assert.equal(options.flags, 'a');
-      assert.equal(options.encoding, 'utf-8');
-
-      return WRITE_STREAM;
-    });
-
-    gently.expect(WRITE_STREAM, 'on', function (event, cb) {
-      assert.strictEqual(event, 'drain');
-
-      (function testQueueEmpty() {
-        dirty._queue = [];
-        dirty.flushing = true;
-
-        gently.expect(dirty, 'emit', function (event) {
-          assert.strictEqual(event, 'drain');
-        });
-
-        cb();
-        assert.strictEqual(dirty.flushing, false);
-      })();
-
-      (function testQueueNotEmpty() {
-        dirty._queue = [1];
-        dirty.flushing = true;
-
-        gently.expect(dirty, '_maybeFlush');
-
-        cb();
-        assert.strictEqual(dirty.flushing, false);
-      })();
-    });
+    
+    gently.expect(dirty, '_recreateWriteStream');
 
     dirtyLoad.call(dirty);
 
-    assert.strictEqual(dirty._writeStream, WRITE_STREAM);
     assert.strictEqual(dirty._readStream, READ_STREAM);
 
     (function testReading() {
@@ -186,6 +151,48 @@ test(function _load() {
       readStreamEmit.error({code: 'ENOENT'})
     })();
   })();
+});
+
+test(function _recreateWriteStream(){
+    var WRITE_STREAM = {};
+    var PATH = 'foo/bar.baz';
+    dirty.path = PATH; 
+    
+    gently.expect(HIJACKED.fs, 'createWriteStream', function (path, options) {
+      assert.equal(path, PATH);
+      assert.equal(options.flags, 'a');
+      assert.equal(options.encoding, 'utf-8');
+
+      return WRITE_STREAM;
+    });
+
+    gently.expect(WRITE_STREAM, 'on', function (event, cb) {
+      assert.strictEqual(event, 'drain');
+
+      (function testQueueEmpty() {
+        dirty._queue = [];
+        dirty.flushing = true;
+
+        gently.expect(dirty, 'emit', function (event) {
+          assert.strictEqual(event, 'drain');
+        });
+
+        cb();
+        assert.strictEqual(dirty.flushing, false);
+      })();
+
+      (function testQueueNotEmpty() {
+        dirty._queue = [1];
+        dirty.flushing = true;
+
+        gently.expect(dirty, '_maybeFlush');
+
+        cb();
+        assert.strictEqual(dirty.flushing, false);
+      })();
+    });
+    dirty._recreateWriteStream();
+    assert.strictEqual(dirty._writeStream, WRITE_STREAM);
 });
 
 test(function get() {
@@ -382,7 +389,7 @@ test(function _startCompacting(){
     var ws = {};
     function expectWriteStream(){
         dirty.path = 'foo/bar.baz';
-        gently.expect(fsStub, "createWriteStream", function(path, obj){
+        gently.expect(HIJACKED.fs, "createWriteStream", function(path, obj){
             assert.strictEqual("foo/bar.baz.compact", path);
             assert.strictEqual('utf-8', obj.encoding);
             assert.strictEqual('w', obj.flags);
@@ -413,7 +420,7 @@ test(function _startCompacting(){
        gently.expect(ws, 'on', function(type, cb){
            assert.strictEqual('error', type);
            gently.expect(dirty, 'emit', function(evt){
-               assert.strictEqual('compactingFailed', evt);
+               assert.strictEqual('compactingError', evt);
            });
            cb();
            gently.expect(ws, 'on');
@@ -447,7 +454,7 @@ test(function _startCompacting(){
 test(function _moveCompactedDataOverOriginal() {
    (function testRenamesCompactedFileToOriginal(){
        dirty.path = 'foo/bar.baz'
-       gently.expect(fsStub, 'rename', function(src, dst){
+       gently.expect(HIJACKED.fs, 'rename', function(src, dst){
            assert.strictEqual('foo/bar.baz.compact', src);
            assert.strictEqual('foo/bar.baz', dst);
        });
@@ -455,9 +462,10 @@ test(function _moveCompactedDataOverOriginal() {
    })();
    
    (function testEmitsCompactingFailedIfRenameErrorsOut(){
-       gently.expect(fsStub, 'rename', function(a,b,cb){
+       gently.expect(HIJACKED.fs, 'rename', function(a,b,cb){
+           gently.expect(dirty, '_recreateWriteStream');
            gently.expect(dirty, 'emit', function(evt){
-               assert.strictEqual('compactingFailed', evt);
+               assert.strictEqual('compactingError', evt);
            });
           cb(new Error('')); 
        });
@@ -465,7 +473,8 @@ test(function _moveCompactedDataOverOriginal() {
    })(); 
 
    (function testEmitsCompactedIfRenameErrorsOut(){
-       gently.expect(fsStub, 'rename', function(a,b,cb){
+       gently.expect(HIJACKED.fs, 'rename', function(a,b,cb){
+           gently.expect(dirty, '_recreateWriteStream');
            gently.expect(dirty, 'emit', function(evt){
                assert.strictEqual('compacted', evt);
            });
@@ -475,8 +484,40 @@ test(function _moveCompactedDataOverOriginal() {
    })(); 
 });
 
-// test(function )
+var _onCompactingComplete = function (evt){
+    (function testEmptiesTheBackupQueue(){
+        dirty._queueBackup = [1,2,3];
+        gently.expect(dirty, "_maybeFlush");
+        evt(); 
+        assert.deepEqual([],dirty._queueBackup);
+    })();
+    
+    (function testSetsCompactingToFalse(){
+        dirty._queueBackup = [1,2,3];
+        gently.expect(dirty, "_maybeFlush");
+        evt();
+        assert.strictEqual(false, dirty.compacting);        
+    })();
+}
+
+test(function _onCompactedResetsTheState(){
+    _onCompactingComplete(function(){
+        dirty.emit("compacted");
+    });
+});
  
+test(function _onCompactingErrorResetsTheStateToBeforeCompacting(){
+    (function testPrependsTheBackupQueueToTheQueue(){
+        dirty._queueBackup = ["tap", "2R"];
+        dirty._queue = ["destroy", "one", "land"];        
+        dirty.emit('compactingError');
+        assert.deepEqual(["tap", "2R", "destroy", "one", "land"], dirty._queue);
+    })();
+    
+    _onCompactingComplete(function(){
+        dirty.emit('compactingError');
+    });
+});
 
 test(function rm() {
   var KEY = 'foo', CB = function() {};
