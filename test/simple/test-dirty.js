@@ -319,6 +319,36 @@ test(function _flush() {
   assert.deepEqual(dirty._queue, []);
 });
 
+
+test(function rm() {
+  var KEY = 'foo', CB = function() {};
+  gently.expect(dirty, 'set', function (key, val, cb) {
+    assert.strictEqual(key, KEY);
+    assert.strictEqual(val, undefined);
+    assert.strictEqual(cb, CB);
+  });
+  dirty.rm(KEY, CB);
+});
+
+test(function forEach() {
+  for (var i = 1; i <= 4; i++) {
+    dirty.set(i, {});
+  };
+
+  var i = 0;
+  dirty.forEach(function(key, doc) {
+    i++;
+    assert.equal(key, i);
+    assert.strictEqual(doc, dirty._docs[i]);
+
+    if (i == 3) {
+      return false;
+    }
+  });
+
+  assert.equal(i, 3);
+});
+
 test(function compactPath(){
     (function testIsPathAppendedWithCompact(){
         dirty.path = 'foo/bar.baz';
@@ -519,31 +549,58 @@ test(function _onCompactingErrorResetsTheStateToBeforeCompacting(){
     });
 });
 
-test(function rm() {
-  var KEY = 'foo', CB = function() {};
-  gently.expect(dirty, 'set', function (key, val, cb) {
-    assert.strictEqual(key, KEY);
-    assert.strictEqual(val, undefined);
-    assert.strictEqual(cb, CB);
-  });
-  dirty.rm(KEY, CB);
+test(function Indexes(){
+    (function setup() {
+        dirty.addIndex('race', function(k,v){
+            return v.race;
+        });
+        dirty.addIndex('damageType', function(k,v){
+            return v.damageType; 
+        });
+    })();
+    
+    var eva = {race: 'cra', damageType: 'ranged', sex: 'F'};
+    var ama = {race: 'sadida', damageType: 'ranged', sex: 'F'};
+    var yug = {race: 'eliatrope', set: 'M'};
+
+    (function testSearchingForANonExistingElementReturnsNothing(){
+        assert.deepEqual([], dirty.find('race', 'cra'));
+    })();
+    
+    (function testAddingASingleElementMakesItSearchableByIndex(){
+        dirty.set('Evangelyne', eva);
+        assert.deepEqual([{key: 'Evangelyne', val: eva}], dirty.find('race', 'cra')); 
+    })();
+    
+    (function testSearchingForAnItemWhichMatchesNOIndexesReturnsNothing(){
+        assert.deepEqual([], dirty.find('race', 'sadida'));
+    })();
+    
+    (function testSearchingForAnItemThatIsDeletedReturnsNothing(){
+        dirty.rm('Evangelyne');
+        assert.deepEqual([], dirty.find('race', 'cra'));
+    })();
+    
+    (function testSearchingForSomethingThatMatchesMoreThanOneItemReturnsThemAll(){
+        dirty.set('Evangelyne', eva);
+        dirty.set('Amalia', eva);
+        assert.deepEqual([{key: 'Evangelyne', val: eva}, {key: 'Amalia', val: eva}], dirty.find('race', 'cra'));
+        assert.deepEqual([{key: 'Evangelyne', val: eva}, {key: 'Amalia', val: eva}], dirty.find('damageType', 'ranged'));
+    })();
+    
+    (function testSearchingAfterModificationReturnsTheSameItemIfTheIndexValueHasntChanged(){
+        dirty.set('Amalia', ama);
+        assert.deepEqual([{key: 'Evangelyne', val: eva}, {key: 'Amalia', val: ama}], dirty.find('damageType', 'ranged'));
+    })();
+
+    (function testSearchingAfterModificationReturnsUnderTheNewIndex(){
+        assert.deepEqual([{key: 'Evangelyne', val: eva}], dirty.find('race', 'cra'));
+        assert.deepEqual([{key: 'Amalia', val: ama}], dirty.find('race', 'sadida'));
+    })();
+    
+    (function testAnItemThatIsUndefinedByAnIndexFunctionIsNotIndexed(){
+       dirty.set('Yugo', yug);
+       assert.deepEqual({'ranged': ['Evangelyne', 'Amalia']}, dirty._indexFns['damageType'].keys) 
+    })();
 });
 
-test(function forEach() {
-  for (var i = 1; i <= 4; i++) {
-    dirty.set(i, {});
-  };
-
-  var i = 0;
-  dirty.forEach(function(key, doc) {
-    i++;
-    assert.equal(key, i);
-    assert.strictEqual(doc, dirty._docs[i]);
-
-    if (i == 3) {
-      return false;
-    }
-  });
-
-  assert.equal(i, 3);
-});

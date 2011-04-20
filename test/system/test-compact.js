@@ -7,6 +7,10 @@ db.addCompactingFilter(function(key, val){
     return /magic/.test(val);
 });
 
+db.addCompactingFilter(function(key, val){
+    return key == 'flan';
+});
+
 db.on('load', function(){
     db.set('red', 'lightning Bolt');
     db.set('black', 'dark ritual');
@@ -14,6 +18,7 @@ db.on('load', function(){
     db.set('white', 'healing salve');
     db.set('green', 'llanowar Elves');
     db.set('purple', 'some magic');
+    db.set('flan', 'is good');
     db.on('drain', function(){
         db.set('green', 'giant growth');
         db.compact();
@@ -24,8 +29,8 @@ db.on('load', function(){
               JSON.stringify({key: 'black', 'val': 'dark ritual'})+'\n'+ 
               JSON.stringify({key: 'blue', 'val': 'ancestral recall'})+'\n'+ 
               JSON.stringify({key: 'white', 'val': 'healing salve'})+'\n'+ 
-              JSON.stringify({key: 'green', 'val': 'giant growth'})+'\n' 
+              JSON.stringify({key: 'green', 'val': 'giant growth'})+'\n'
             );
-        })
-    })  
-})
+        });
+    });  
+});
