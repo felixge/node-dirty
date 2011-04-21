@@ -599,3 +599,77 @@ test(function Indexes(){
     })();
 });
 
+test(function length(){
+    (function setup(){
+        dirty.forEach(function(k,v){
+            dirty.rm(k);
+        })
+        assert.equal(0, dirty.length);
+    })();
+    
+    (function testAddingAnItemIncreasesLength(){
+       dirty.set('steam',['fire', 'ice']);
+       assert.equal(1, dirty.length); 
+    })();
+    
+    (function testModifyingAnItemDoesntChangeLength(){
+        dirty.set('steam', ['fire', 'water']);
+        assert.equal(1, dirty.length);
+    })();
+    
+    (function testRemovingAnItemReducesLength(){
+        dirty.rm('steam');
+        assert.equal(0, dirty.length);
+    })();
+    
+    (function testReAddingADeletedItemIncreasesLength(){
+        dirty.set('steam', ['fire', 'water']);
+        assert.equal(1, dirty.length);
+    })();
+    
+    (function testReAddingAnExistingItemDoesNotIncreaseLength(){
+        dirty.set('steam', ['fire', 'water']);
+        assert.equal(1, dirty.length);
+    })();
+})
+
+test(function redundantLength(){
+    var original_length;
+    (function setup(){
+        dirty.forEach(function(k,v){
+            dirty.rm(k);
+        })
+        original_length = dirty.redundantLength;
+    })();
+    
+    (function testAddingAnItemDoesNotIncreaseRedundantLength(){
+       dirty.set('arcane','spread');
+       assert.equal(original_length, dirty.redundantLength); 
+    })();
+    
+    (function testReAddingAnExistingItemIncreasesRedundantLength(){
+       dirty.set('arcane','spread');
+       assert.equal(original_length + 1, dirty.redundantLength); 
+    })();
+    
+    (function testModifyingAnItemIncreasesRedundantLength(){
+        dirty.set('arcane', 'beam');
+        assert.equal(original_length + 2, dirty.redundantLength);
+    })();
+    
+    (function testRemovingAnExistingItemIncreasesRedundantLengthByTwo(){
+        dirty.rm('arcane');
+        assert.equal(original_length + 4, dirty.redundantLength);
+    })();
+    
+    (function testRemovingANonExistingItemIncreasesRedundantLength(){
+        dirty.rm('arcane');
+        assert.equal(original_length + 5, dirty.redundantLength);
+    })();
+    
+    (function testReAddingADeletedItemDoesNotIncreasRedundantLength(){
+        dirty.set('arcane', 'beam');
+        assert.equal(original_length + 5, dirty.redundantLength);
+    })();
+})
+
