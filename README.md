@@ -140,7 +140,15 @@ You can add as many indexes as you want, but beware this adds to every add/delet
 
 ### dirty.find(index, value)
 
-This returns all documents with the given value for the index.   
+This returns all documents with the given value for the index. 
+
+### dirty.length
+
+This is a count of the number of documents. If compacting fails, this can become incorrect (since it will not be aware of filtered rows. It will reflect the memory store not the disk store.)
+
+### dirty.redundantLength
+
+This is a count of the number of redundant rows. You can use this to decide when to compact.˝  
 
 
 
