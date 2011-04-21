@@ -597,10 +597,5 @@ test(function Indexes(){
         assert.deepEqual([{key: 'Evangelyne', val: eva}], dirty.find('race', 'cra'));
         assert.deepEqual([{key: 'Amalia', val: ama}], dirty.find('race', 'sadida'));
     })();
-    
-    (function testAnItemThatIsUndefinedByAnIndexFunctionIsNotIndexed(){
-       dirty.set('Yugo', yug);
-       assert.deepEqual({'ranged': ['Evangelyne', 'Amalia']}, dirty._indexFns['damageType'].keys) 
-    })();
 });
 
