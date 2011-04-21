@@ -127,6 +127,20 @@ Emitted once compacting is complete if you start a compact run and succeeds.
 
 Emitted once compacting is complete if you start a compact run and it fails. When this happens the in memory store will be inconsistent with the database on file. The memory store will no longer contain any rows that were filtered out by the compacting filter. But these rows will still be in the database. Ideally, since the filters are for removing stale rows that aren't harmful, this shouldn't matter. 
 
+### dirty.addIndex(index, indexFn)
+
+Use this to add an index named index. indexFn is a function(key, val) that returns the indexed value. For example
+
+    dirty.addIndex('eyeColor', function(k, v){
+				return v.eyes;
+    });
+
+You can add as many indexes as you want, but beware this adds to every add/delete/update operation an O(k) operation where k is the number of values which match a given index. If your index is not well distributed, with large databases you might face an issue. Don't worry about this most of the time.
+
+
+### dirty.find(index, value)
+
+This returns all documents with the given value for the index.   
 
 
 
