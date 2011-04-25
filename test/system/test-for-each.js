@@ -9,7 +9,7 @@ var i = 0;
 db.forEach(function(key, doc) {
   i++;
   assert.equal(key, i);
-  assert.strictEqual(doc, db.get(key));
+  assert.deepEqual(doc, db.get(key));
 });
 
 assert.equal(i, 3);

@@ -199,7 +199,7 @@ test(function get() {
   var KEY = 'example', VAL = {};
   dirty._docs[KEY] = VAL;
 
-  assert.strictEqual(dirty.get(KEY), VAL);
+  assert.deepEqual(dirty.get(KEY), VAL);
 });
 
 test(function set() {
