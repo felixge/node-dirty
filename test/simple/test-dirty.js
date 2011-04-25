@@ -200,6 +200,30 @@ test(function get() {
   dirty._docs[KEY] = VAL;
 
   assert.deepEqual(dirty.get(KEY), VAL);
+  
+  (function testReturnsNumbersAsTheyAre(){
+      dirty._docs[KEY] = 5;
+      assert.strictEqual(5, dirty.get(KEY));
+  })();
+  
+  (function testReturnsStringsAsTheyAre(){
+      dirty._docs[KEY] = "theont";
+      assert.strictEqual("theont", dirty.get(KEY));
+  })();
+  
+  (function testReturnsACloneOfArrays(){
+      VAL = [1,2,3];
+      dirty._docs[KEY] = VAL;
+      assert.notStrictEqual(VAL, dirty.get(KEY));
+      assert.deepEqual(VAL, dirty.get(KEY));
+  })();
+
+  (function testReturnsACloneOfObjects(){
+      VAL = {foo: 'bar'};
+      dirty._docs[KEY] = VAL;
+      assert.notStrictEqual(VAL, dirty.get(KEY));
+      assert.deepEqual(VAL, dirty.get(KEY));
+  })();
 });
 
 test(function set() {
