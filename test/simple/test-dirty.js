@@ -181,7 +181,7 @@ test(function _load() {
         assert.equal(event, 'load');
         assert.equal(length, 0);
       });
-      readStreamEmit.error({errno: process.binding('net').ENOENT})
+      readStreamEmit.error({ code: 'ENOENT' })
     })();
   })();
 });
