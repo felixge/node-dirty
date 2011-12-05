@@ -1,7 +1,7 @@
 require('../../test/common');
 var COUNT = 1e6,
     dirty = require('dirty')(),
-    sys = require('sys');
+    util = require('util');
 
 for (var i = 0; i < COUNT; i++) {
   dirty.set(i, i);
@@ -19,5 +19,5 @@ var ms = +new Date - start,
     million = COUNT / 1e6;
 
 // Can't use console.log() since since I also test this in ancient node versions
-sys.puts(mhz+' Mhz ('+million+' million in '+ms+' ms)');
+util.log(mhz+' Mhz ('+million+' million in '+ms+' ms)');
 
