@@ -1,7 +1,7 @@
 require('../../test/common');
 var COUNT = 1e4,
     dirty = require('dirty')(__dirname+'/../../test/tmp/benchmark-set-drain.dirty'),
-    sys = require('sys'),
+    util = require('util'),
     drained = false;
 
 var start = +new Date;
@@ -15,7 +15,7 @@ dirty.on('drain', function() {
       million = COUNT / 1e6;
 
   // Can't use console.log() since since I also test this in ancient node versions
-  sys.puts(mhz+' Hz ('+million+' million in '+ms+' ms)');
+  util.log(mhz+' Hz ('+million+' million in '+ms+' ms)');
 
   drained = true;
 });
