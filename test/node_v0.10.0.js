@@ -1,3 +1,5 @@
+var _ = require('underscore');
+var async = require('async');
 var dirty = require('../index.js');
 
 if (!process.version.match(/v0\.10\./)) {
@@ -6,36 +8,55 @@ if (!process.version.match(/v0\.10\./)) {
 else {
 	// Test Node v0.10.0 compatibility
 	describe('with node v0.10.0', function() {
-			describe('db.set()', function() {
-				describe('using the disk store', function() {
-					it('should trigger the callback if provided', function(cb) {
-						connectToMemDb(function (err, db) {
-							if (err) return cb(err);
-
-							// Set sample db entry
-							db.set('sample', {
-								id: Math.round(Math.random()*100)
-							}, function (err) {
-								cb(err);
-							});
-						});
-					});
-				});
-				describe('using the memory store', function() {
-					it('should trigger the callback if provided', function(cb) {
-						connectToDiskDb(function (err, db) {
-							if (err) return cb(err);
-
-							// Set sample db entry
-							db.set('sample', {
-								id: Math.round(Math.random()*100)
-							}, function (err) {
-								cb(err);
-							});
-						});
+		describe('db.set()', function() {
+			describe('using the disk store', function() {
+				it('should trigger the callback if provided', function(cb) {
+					connectToMemDb(function (err, db) {
+						if (err) return cb(err);
+						setSample(cb);
 					});
 				});
 			});
+			describe('using the memory store', function() {
+				it('should trigger the callback if provided', function(cb) {
+					connectToDiskDb(function (err, db) {
+						if (err) {
+							console.error("Could not connect to disk database!",err);
+							return cb(err);
+						}
+						setSample(cb);
+					});
+				});
+			});
+		});
+
+		describe('db.set() 10 more times', function() {
+			describe('using the disk store', function() {
+				it('should trigger the callback if provided', function(cb) {
+					connectToMemDb(function (err, db) {
+						if (err) return cb(err);
+
+						async.each(_.range(10),function (i,cb) {
+							setSample(cb);
+						}, cb);
+					});
+				});
+			});
+			describe('using the memory store', function() {
+				it('should trigger the callback if provided', function(cb) {
+					connectToDiskDb(function (err, db) {
+						if (err) {
+							console.error("Could not connect to disk database!",err);
+							return cb(err);
+						}
+
+						async.each(_.range(10),function (i,cb) {
+							setSample(cb);
+						}, cb);
+					});
+				});
+			});
+		});
 	});
 }
 
@@ -51,7 +72,14 @@ function connectToMemDb(cb) {
 // Instantiate sample disk database
 function connectToDiskDb(cb) {
 	var db = dirty('dirty.db');
-	db.on('load', function (err){
+	db.on('load', function (err) {
 		cb(err, db);
 	});
+}
+
+// Set sample db entry
+function setSample(db, cb) {
+	var key = 'sample';
+	var val = {id: Math.round(Math.random()*100)};
+	db.set(key, val, cb);
 }
