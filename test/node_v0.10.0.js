@@ -12,7 +12,12 @@ else {
 						connectToMemDb(function (err, db) {
 							if (err) return cb(err);
 
-							cb();
+							// Set sample db entry
+							db.set('sample', {
+								id: Math.round(Math.random()*100)
+							}, function (err) {
+								cb(err);
+							});
 						});
 					});
 				});
@@ -21,7 +26,12 @@ else {
 						connectToDiskDb(function (err, db) {
 							if (err) return cb(err);
 
-							cb();
+							// Set sample db entry
+							db.set('sample', {
+								id: Math.round(Math.random()*100)
+							}, function (err) {
+								cb(err);
+							});
 						});
 					});
 				});
