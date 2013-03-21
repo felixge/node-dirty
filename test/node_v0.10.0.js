@@ -40,9 +40,15 @@ else {
 					});
 				});
 
-				it('should trigger the callback for each of 10 db calls', function(cb) {
+				it('should work again as long as a fresh connection is used', function(cb) {
 					connectToDiskDb(function (count, db) {
-						async.eachSeries(_.range(10),function (i,cb) {
+						setSample(db,cb);
+					});
+				});
+
+				it('callback should fire each time if set() is used multiple times over the same db connection', function(cb) {
+					connectToDiskDb(function (count, db) {
+						async.eachSeries(_.range(2),function (i,cb) {
 							setSample(db, cb);
 						}, cb);
 					});
