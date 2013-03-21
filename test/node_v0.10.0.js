@@ -35,21 +35,13 @@ else {
 			describe('using the disk store', function() {
 
 				it('should trigger the callback if provided', function(cb) {
-					connectToDiskDb(function (err, db) {
-						if (err) {
-							console.error("Could not connect to disk database!",err);
-							return cb(err);
-						}
+					connectToDiskDb(function (count, db) {
 						setSample(db,cb);
 					});
 				});
 
 				it('should trigger the callback for each of 10 db calls', function(cb) {
-					connectToDiskDb(function (err, db) {
-						if (err) {
-							console.error("Could not connect to disk database!",err);
-							return cb(err);
-						}
+					connectToDiskDb(function (count, db) {
 						async.eachSeries(_.range(10),function (i,cb) {
 							setSample(db, cb);
 						}, cb);
