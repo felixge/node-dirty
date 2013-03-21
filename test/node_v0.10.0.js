@@ -13,8 +13,10 @@ else {
 
 
 				it('should trigger the callback for each of 10 db calls', function(cb) {
-					connectToMemDb(function (err, db) {
-						if (err) return cb(err);
+					connectToMemDb(function (count, db) {
+						db.on('error', function (err) {
+							return cb(err);
+						});
 
 						async.eachSeries(_.range(10),function (i,cb) {
 							setSample(db,cb);
@@ -24,8 +26,10 @@ else {
 
 
 				it('should trigger the callback if provided', function(cb) {
-					connectToMemDb(function (err, db) {
-						if (err) return cb(err);
+					connectToMemDb(function (count, db) {
+						db.on('error', function (err) {
+							return cb(err);
+						});
 						setSample(db,cb);
 					});
 				});
@@ -36,18 +40,27 @@ else {
 
 				it('should trigger the callback if provided', function(cb) {
 					connectToDiskDb(function (count, db) {
+						db.on('error', function (err) {
+							return cb(err);
+						});
 						setSample(db,cb);
 					});
 				});
 
 				it('should work again as long as a fresh connection is used', function(cb) {
 					connectToDiskDb(function (count, db) {
+						db.on('error', function (err) {
+							return cb(err);
+						});
 						setSample(db,cb);
 					});
 				});
 
 				it('callback should fire each time if set() is used multiple times over the same db connection', function(cb) {
 					connectToDiskDb(function (count, db) {
+						db.on('error', function (err) {
+							return cb(err);
+						});
 						async.eachSeries(_.range(2),function (i,cb) {
 							setSample(db, cb);
 						}, cb);
