@@ -9,53 +9,56 @@ else {
 	// Test Node v0.10.0 compatibility
 	describe('with node v0.10.0', function() {
 		describe('db.set()', function() {
-			describe('using the disk store', function() {
+			describe('using the memory store', function() {
+
+
+				it('should trigger the callback for each of 10 db calls', function(cb) {
+					connectToMemDb(function (err, db) {
+						if (err) return cb(err);
+
+						async.eachSeries(_.range(10),function (i,cb) {
+							setSample(db,cb);
+						}, cb);
+					});
+				});
+
+
 				it('should trigger the callback if provided', function(cb) {
 					connectToMemDb(function (err, db) {
 						if (err) return cb(err);
-						setSample(cb);
+						setSample(db,cb);
 					});
 				});
 			});
-			describe('using the memory store', function() {
+
+
+			describe('using the disk store', function() {
+
 				it('should trigger the callback if provided', function(cb) {
 					connectToDiskDb(function (err, db) {
 						if (err) {
 							console.error("Could not connect to disk database!",err);
 							return cb(err);
 						}
-						setSample(cb);
+						setSample(db,cb);
 					});
 				});
-			});
-		});
 
-		describe('db.set() 10 more times', function() {
-			describe('using the disk store', function() {
-				it('should trigger the callback if provided', function(cb) {
-					connectToMemDb(function (err, db) {
-						if (err) return cb(err);
-
-						async.each(_.range(10),function (i,cb) {
-							setSample(cb);
-						}, cb);
-					});
-				});
+				// it('should trigger the callback for each of 10 db calls', function(cb) {
+				// 	connectToDiskDb(function (err, db) {
+				// 		if (err) {
+				// 			console.error("Could not connect to disk database!",err);
+				// 			return cb(err);
+				// 		}
+				// 		async.eachSeries(_.range(10),function (i,cb) {
+				// 			setSample(db, cb);
+				// 		}, cb);
+				// 	});
+				// });
 			});
-			describe('using the memory store', function() {
-				it('should trigger the callback if provided', function(cb) {
-					connectToDiskDb(function (err, db) {
-						if (err) {
-							console.error("Could not connect to disk database!",err);
-							return cb(err);
-						}
 
-						async.each(_.range(10),function (i,cb) {
-							setSample(cb);
-						}, cb);
-					});
-				});
-			});
+
+
 		});
 	});
 }

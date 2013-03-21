@@ -11,6 +11,9 @@
     "async": "~0.2.6",
     "underscore": "~1.4.4"
   },
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha"
+  },
   "engines": {
     "node": "*"
   }
