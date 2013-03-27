@@ -114,7 +114,7 @@ Dirty utilizes the [Mocha](http://visionmedia.github.com/mocha/) test framework.
 ```bash
 git clone https://github.com/felixge/node-dirty
 cd node-dirty
-npm install --dev
+npm install
 npm test
 ```
 
