@@ -109,6 +109,8 @@ Emitted whenever all records have been written to disk.
 
 ## Tests
 
+[![Build Status](https://travis-ci.org/bentaber/node-dirty.png)](https://travis-ci.org/bentaber/node-dirty)
+
 Dirty utilizes the [Mocha](http://visionmedia.github.com/mocha/) test framework.
 
 ```bash
