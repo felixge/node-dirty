@@ -2,17 +2,14 @@
   "name": "dirty",
   "description": "A tiny & fast key value store with append-only disk log. Ideal for apps with < 1 million records.",
   "version": "0.9.7",
-  "dependencies": {
-  },
+  "dependencies": {},
   "main": "./lib/dirty",
   "devDependencies": {
-    "gently": ">=0.8.0",
     "mocha": "~1.8.2",
-    "async": "~0.2.6",
-    "underscore": "~1.4.4"
+    "rimraf": "~2.1.4"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/mocha/bin/mocha test/test-*.js -R list"
   },
   "engines": {
     "node": "*"
