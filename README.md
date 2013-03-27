@@ -25,7 +25,7 @@ but it is a wonderful solution for anything smaller than that.
 
 ```javascript
   var dirty = require('dirty');
-  var db = ('user.db');
+  var db = dirty('user.db');
 
   db.on('load', function() {
     db.set('john', {eyes: 'blue'});
