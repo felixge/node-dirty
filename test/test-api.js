@@ -1,17 +1,26 @@
 var config = require('./config');
+  path = require('path'),
   fs = require('fs'),
   dirty = require(config.LIB_DIRTY),
   events = require('events'),
   assert = require('assert');
 
+// exists moved from path to fs in node v0.7.1
+// https://raw.github.com/joyent/node/v0.7.1/ChangeLog
+var exists = (fs.exists) ? fs.exists : path.exists;
+
 function dirtyAPITests(file) {
   var mode = (file) ? 'persistent' : 'transient';
 
   describe('dirty api (' + mode + ' mode)', function() {
-    function cleanup() {
-      if (fs.existsSync(file)) {
-        fs.unlinkSync(file);
-      }
+    function cleanup(done) {
+      exists(file, function(doesExist) {
+        if (doesExist) {
+          fs.unlinkSync(file);
+        }
+
+        done();
+      });
     }
 
     before(cleanup);
