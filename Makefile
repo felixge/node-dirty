@@ -1,5 +1,5 @@
 test:
-	@find test/{simple,system}/test-*.js | xargs -n 1 -t node
+	npm test
 
 benchmark-v8:
 	@find benchmark/v8/*.js | xargs -n 1 -t node

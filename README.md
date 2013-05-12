@@ -13,7 +13,9 @@ A tiny & fast key value store with append-only disk log. Ideal for apps with < 1
 
 ## Installation
 
-    npm install dirty
+```bash
+npm install dirty
+```
 
 ## Why dirty?
 
@@ -28,26 +30,27 @@ but it is a wonderful solution for anything smaller than that.
 
 ## Tutorial
 
-    require('../test/common');
-    var db = require('dirty')('user.db');
+```javascript
+  var dirty = require('dirty');
+  var db = dirty('user.db');
 
-    db.on('load', function() {
-      db.set('john', {eyes: 'blue'});
-      console.log('Added john, he has %s eyes.', db.get('john').eyes);
+  db.on('load', function() {
+    db.set('john', {eyes: 'blue'});
+    console.log('Added john, he has %s eyes.', db.get('john').eyes);
 
-      db.set('bob', {eyes: 'brown'}, function() {
-        console.log('User bob is now saved on disk.')
-      });
-
-      db.forEach(function(key, val) {
-        console.log('Found key: %s, val: %j', key, val);
-      });
+    db.set('bob', {eyes: 'brown'}, function() {
+      console.log('User bob is now saved on disk.')
     });
 
-    db.on('drain', function() {
-      console.log('All records are saved on disk now.');
+    db.forEach(function(key, val) {
+      console.log('Found key: %s, val: %j', key, val);
     });
+  });
 
+  db.on('drain', function() {
+    console.log('All records are saved on disk now.');
+  });
+```
 Output:
 
     Added john, he has blue eyes.
@@ -65,11 +68,12 @@ can also omit the `path` if you don't want disk persistence (useful for testing)
 
 The constructor can be invoked in multiple ways:
 
-    require('dirty')('my.db');
-    require('dirty').Dirty('my.db');
-    new (require('dirty'))('my.db');
-    new (require('dirty').Dirty)('my.db');
-
+```javascript
+require('dirty')('my.db');
+require('dirty').Dirty('my.db');
+new (require('dirty'))('my.db');
+new (require('dirty').Dirty)('my.db');
+```
 ### dirty.path
 
 The path of the dirty database.
@@ -125,7 +129,7 @@ Emitted once compacting is complete if you start a compact run and succeeds.
 
 ### dirty event: 'compactingError'
 
-Emitted once compacting is complete if you start a compact run and it fails. When this happens the in memory store will be inconsistent with the database on file. The memory store will no longer contain any rows that were filtered out by the compacting filter. But these rows will still be in the database. Ideally, since the filters are for removing stale rows that aren't harmful, this shouldn't matter. 
+Emitted once compacting is complete if you start a compact run and it fails. When this happens the in memory store will be inconsistent with the database on file. The memory store will no longer contain any rows that were filtered out by the compacting filter. But these rows will still be in the database. Ideally, since the filters are for removing stale rows that aren't harmful, this shouldn't matter.
 
 ### dirty.addIndex(index, indexFn)
 
@@ -140,7 +144,7 @@ You can add as many indexes as you want, but beware this adds to every add/delet
 
 ### dirty.find(index, value)
 
-This returns all documents with the given value for the index. 
+This returns all documents with the given value for the index.
 
 ### dirty.length
 
@@ -148,9 +152,21 @@ This is a count of the number of documents. If compacting fails, this can become
 
 ### dirty.redundantLength
 
-This is a count of the number of redundant rows. You can use this to decide when to compact.˝  
+This is a count of the number of redundant rows. You can use this to decide when to compact.˝
 
 
+## Tests
+
+[![Build Status](https://travis-ci.org/felixge/node-dirty.png)](https://travis-ci.org/felixge/node-dirty)
+
+Dirty utilizes the [Mocha](http://visionmedia.github.com/mocha/) test framework.
+
+```bash
+git clone https://github.com/felixge/node-dirty
+cd node-dirty
+npm install
+npm test
+```
 
 ## License
 
