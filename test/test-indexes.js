@@ -68,6 +68,11 @@ describe('indexes', function(){
     it.skip('does not find items for which the index function returns `undefined`', function(){
         assert.deepEqual([], db.find('damageType', undefined));
     });
+
+    it('lists out all the values the index has taken', function(){
+        assert.deepEqual(['cra', 'sadida', 'eliatrope'], db.indexValues('race'));
+        assert.deepEqual(['ranged', "undefined"], db.indexValues('damageType'));
+    });
   });
 });
 
