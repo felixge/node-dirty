@@ -15,10 +15,16 @@ describe('indexes', function(){
     db = dirty(file);
     db.once('load', function(){
       db.addIndex('race', function(k,v){
-          return v.race;
+          return [v.race];
       });
       db.addIndex('damageType', function(k,v){
-          return v.damageType;
+          return v.damageType ? [v.damageType] : [];
+      });
+      var characters = "abcdefghijklmnopqrstuvwxyz".split('');
+      db.addIndex('character', function(k, v){
+        return characters.filter(function(c){
+          return new RegExp(c).exec(k)
+        })
       });
       db.set('Evangeline', eva);
       db.set('Amalia', ama);
@@ -65,8 +71,21 @@ describe('indexes', function(){
       assert.deepEqual([{key: 'Evangeline', val: newEva}], db.find('race', 'cra-n'));
     });
 
-    it.skip('does not find items for which the index function returns `undefined`', function(){
+    it('does not find items for which the index function returns `undefined`', function(){
         assert.deepEqual([], db.find('damageType', undefined));
+    });
+
+    it('allows the same item to be known via multiple indexes', function(){
+      var compare = function(a,b){
+        return (a.key < b.key) ? -1 : 1;
+      }
+      assert.deepEqual([{key: 'Yugo', val: yug}], db.find('character', 'u'));
+      assert.deepEqual([{key: 'Amalia', val: ama},{key: 'Evangeline', val: eva}], db.find('character', 'i').sort(compare));
+      assert.deepEqual([], db.find('character', 'y'));
+      db.rm('Evangeline');
+      db.set('Evangelyne', eva);
+      assert.deepEqual([{key: 'Amalia', val: ama}], db.find('character', 'i'));
+      assert.deepEqual([{key: 'Evangelyne', val: eva}], db.find('character', 'y'));
     });
 
     it('lists out all the values the index has taken', function(){

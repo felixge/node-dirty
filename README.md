@@ -133,10 +133,10 @@ Emitted once compacting is complete if you start a compact run and it fails. Whe
 
 ### dirty.addIndex(index, indexFn)
 
-Use this to add an index named index. indexFn is a function(key, val) that returns the indexed value. For example
+Use this to add an index named index. indexFn is a function(key, val) that returns all the index values of that record. For example
 
-    dirty.addIndex('eyeColor', function(k, v){
-				return v.eyes;
+    dirty.addIndex('identifyingColor', function(k, v){
+				return [v.eyeColor, v.hairColor, v.skinColor];
     });
 
 You can add as many indexes as you want, but beware this adds to every add/delete/update operation an O(k) operation where k is the number of values which match a given index. If your index is not well distributed, with large databases you might face an issue. Don't worry about this most of the time.
