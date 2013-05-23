@@ -71,7 +71,7 @@ describe('indexes', function(){
 
     it('lists out all the values the index has taken', function(){
         assert.deepEqual(['cra', 'sadida', 'eliatrope'], db.indexValues('race'));
-        assert.deepEqual(['ranged', "undefined"], db.indexValues('damageType'));
+        assert.deepEqual(['ranged'], db.indexValues('damageType'));
     });
   });
 });
