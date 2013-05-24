@@ -41,6 +41,7 @@ describe('test-sets', function() {
 
 
   it('should not get confused by properties on the prototype of Object', function(){
+    try {
       Object.prototype.baz = true;
       var set = new Set(['foo', 'bar']);
       var assertHasBaz = function() {
@@ -60,6 +61,11 @@ describe('test-sets', function() {
       assertHasNoBaz();
       set.remove('baz');
       assertHasNoBaz();
+    } catch (e) {
+      throw e
+    } finally {
+      delete Object.prototype.baz;
+    }
   });
 
   it('should return all items that are not present in the given set', function(){
