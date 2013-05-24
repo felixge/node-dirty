@@ -131,7 +131,38 @@ function dirtyAPITests(file) {
 
     });
 
+    describe('clone behaviour', function(done){
+      after(cleanup)
+      var db = dirty(file);
+
+      it('will return numbers as they are', function(done){
+        db.set('key_n', 5);
+        assert.strictEqual(5, db.get('key_n'));
+        done();
+      });
+
+      it('will return strings as they are', function(done){
+        db.set('key_s', "jello");
+        assert.strictEqual("jello", db.get('key_s'));
+        done();
+      });
+
+      it('will return a clone of arrays', function(done){
+        var val = [1,"hello", 4];
+        db.set('key_a', val);
+        assert.deepEqual(val, db.get('key_a'));
+        done();
+      });
+
+      it('will return a clone of objects', function(done){
+        var val = {foo: 'bar'};
+        db.set('key_o', val);
+        assert.deepEqual(val, db.get('key_o'));
+        done();
+      });
+    });
   });
+
 }
 
 dirtyAPITests('');

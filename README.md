@@ -1,3 +1,10 @@
+#EDITS
+
+This is a fork of node-dirty with the following abilities added.
+
+* A Compacting function
+* Custom Indexes
+
 # node-dirty
 
 ## Purpose
@@ -106,6 +113,47 @@ key once, even if it had been overwritten.
 ### dirty event: 'drain' ()
 
 Emitted whenever all records have been written to disk.
+
+### dirty.compact()
+
+Compacts the database and gets rid of all redundant rows. It creates a new file to write to and then overwrites the existing file if it successfully writes it out. Use this when your system has some idle cycles. This should make load much faster.
+
+### dirty.addCompactingFilter(filter)
+
+Used while compacting the database and gets RID of any row that's matched by the filter (filter returns true). This is useful if you want to use the compacting run to clean up the database of stale data (like old database sessions). These filters are not persisted. You have to re-add them everytime the app starts.
+filter is function(key, value);
+
+### dirty event: 'compacted'
+
+Emitted once compacting is complete if you start a compact run and succeeds.
+
+### dirty event: 'compactingError'
+
+Emitted once compacting is complete if you start a compact run and it fails. When this happens the in memory store will be inconsistent with the database on file. The memory store will no longer contain any rows that were filtered out by the compacting filter. But these rows will still be in the database. Ideally, since the filters are for removing stale rows that aren't harmful, this shouldn't matter.
+
+### dirty.addIndex(index, indexFn)
+
+Use this to add an index named index. indexFn is a function(key, val) that returns all the index values of that record. For example
+
+    dirty.addIndex('identifyingColor', function(k, v){
+				return [v.eyeColor, v.hairColor, v.skinColor];
+    });
+
+You can add as many indexes as you want, but beware this adds to every add/delete/update operation an O(k) operation where k is the number of values which match a given index. If your index is not well distributed, with large databases you might face an issue. Don't worry about this most of the time.
+
+
+### dirty.find(index, value)
+
+This returns all documents with the given value for the index.
+
+### dirty.length
+
+This is a count of the number of documents. If compacting fails, this can become incorrect (since it will not be aware of filtered rows. It will reflect the memory store not the disk store.)
+
+### dirty.redundantLength
+
+This is a count of the number of redundant rows. You can use this to decide when to compact.˝
+
 
 ## Tests
 

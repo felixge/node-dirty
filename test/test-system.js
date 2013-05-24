@@ -47,7 +47,7 @@ describe('test-for-each', function() {
     db.forEach(function(key, doc) {
       i++;
       assert.equal(key, i);
-      assert.strictEqual(doc, db.get(key));
+      assert.deepEqual(doc, db.get(key));
     });
     assert.equal(i, 3);
   });
@@ -76,12 +76,12 @@ describe('test-load', function() {
         assert.strictEqual(db2.get(1), 'A');
         assert.strictEqual(db2.get(2), 'B');
         assert.strictEqual(db2.get(3), undefined);
-        assert.strictEqual(db2._keys.length, 2);
+        assert.strictEqual(db2.length, 2);
         assert.ok(!('3' in db2._docs));
         done();
       });
     });
-    
+
   });
 });
 
