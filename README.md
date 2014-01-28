@@ -95,6 +95,10 @@ if you are only interested in a limited number of records).
 
 This function is blocking and runs at ~4 Mhz.
 
+### dirty.close()
+
+Close the dirty db file handle. 
+
 ### dirty event: 'load' (length)
 
 Emitted once the database file has finished loading. It is not safe to access
@@ -106,6 +110,14 @@ key once, even if it had been overwritten.
 ### dirty event: 'drain' ()
 
 Emitted whenever all records have been written to disk.
+
+### dirty event: 'read_close' ()
+
+Emitted once the database file read stream closed.
+
+### dirty event : 'write_close' ()
+
+Emitted once the database file write stream closed.
 
 ## Tests
 
