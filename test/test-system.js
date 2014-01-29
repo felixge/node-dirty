@@ -97,3 +97,22 @@ describe('test-size', function() {
     assert.equal(db.size(), 3);
   });
 });
+
+describe('test-chaining-of-constructor', function() {
+  var file = config.TMP_PATH + '/chain.dirty';
+  fs.existsSync(file) && fs.unlinkSync(file);
+
+  it('should allow .on load to chain to constructor', function() {
+    var db = dirty(file);
+    db.on('load', function() {
+      db.set("x", "y");
+      db.set("p", "q");
+      db.close();
+
+      db = dirty(file).on('load', function(size) {
+        assert.strictEqual(db.size(), 2);  
+        assert.strictEqual(size, 2);  
+      });
+    });
+  });
+});
