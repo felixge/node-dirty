@@ -107,6 +107,12 @@ records before this event fires. Writing records however should be fine.
 `length` is the amount of records the database is holding. This only counts each
 key once, even if it had been overwritten.
 
+You can chain the on load to the contructor as follows:
+
+```javascript
+var db = dirty(file).on('load', function() { ... });
+```
+
 ### dirty event: 'drain' ()
 
 Emitted whenever all records have been written to disk.
