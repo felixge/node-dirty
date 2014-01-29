@@ -127,8 +127,28 @@ function dirtyAPITests(file) {
           done();
         });
       });
+    });
+    
+    describe('db file close', function(done) {
+      after(cleanup);
+      
+      it('close', function(done) {
+        if (!file) {
+          console.log('N/A in transient mode');
+          return done();
+        }
+        var db = dirty(file);
+        db.on('load', function(length) {
+          db.set('close', 'close');
+          db.on('drain', function() {
+            db.close();
+          });
+        });
 
-
+        db.on('write_close',function() {
+          done();
+        });
+      });
     });
 
   });
