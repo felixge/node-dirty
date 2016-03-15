@@ -116,3 +116,15 @@ describe('test-chaining-of-constructor', function() {
     });
   });
 });
+
+describe('test-update', function () {
+  it('should give the updater the value and then set the value to what updater returns', function() {
+    var db = dirty();
+    db.set("foo", "bar");
+    db.update("foo", function (bar) {
+      assert.strictEqual(bar, "bar");
+      return "baz";
+    });
+    assert.strictEqual(db.get("foo"), "baz");
+  });
+});
