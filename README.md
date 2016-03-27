@@ -87,6 +87,13 @@ Retrieves the value for the given `key`.
 Removes the record with the given `key`. This is identical to setting the `key`'s value
 to `undefined`.
 
+### dirty.update(key, updater, [cb])
+
+Updates the record of the given `key` with the given `updater` which is a function
+that is passed the current value of the key.
+
+The optional `cb` callback is passed to `dirty.set`.
+
 ### dirty.forEach(fn)
 
 Calls the given `fn` function for every document in the database. The passed
