@@ -3,6 +3,7 @@
   "description": "A tiny & fast key value store with append-only disk log. Ideal for apps with < 1 million records.",
   "version": "1.1.0",
   "repository": "https://github.com/felixge/node-dirty.git",
+  "license": "MIT",
   "dependencies": {},
   "main": "./lib/dirty",
   "devDependencies": {
