@@ -113,6 +113,13 @@ function dirtyAPITests(file) {
         assert.strictEqual(db.get('test'), undefined);
       });
 
+      it('.rm of unknown key is a no-op', async function() {
+        db.rm('does not exist');
+        const got = [];
+        db.forEach((k, v) => { got.push([k, v]); });
+        assert.deepStrictEqual(got, [['key', 'value'], ['key1', 'value1']]);
+      });
+
       it('will reload file from disk', function(done) {
         if (!file) {
           console.log('N/A in transient mode');
