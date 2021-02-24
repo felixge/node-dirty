@@ -131,6 +131,9 @@ function dirtyAPITests(file) {
           assert.strictEqual(length, 2);
           assert.strictEqual(db.get('key'), 'value');
           assert.strictEqual(db.get('key1'), 'value1');
+          const got = [];
+          db.forEach((k, v) => { got.push([k, v]); });
+          assert.deepStrictEqual(got, [['key', 'value'], ['key1', 'value1']]);
           done();
         });
       });
