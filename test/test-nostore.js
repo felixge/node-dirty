@@ -1,7 +1,6 @@
 var config = require('./config'),
   Dirty = require(config.LIB_DIRTY),
-  assert = require('assert'),
-  fs = require('fs');
+  assert = require('assert');
 
 describe('test-load-event', function() {
   it('should fire load event', function(done) {

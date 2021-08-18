@@ -109,7 +109,7 @@ key once, even if it had been overwritten.
 You can chain the on load to the contructor as follows:
 
 ```javascript
-var db = dirty(file).on('load', function() { ... });
+var db = new Dirty(file).on('load', function() { ... });
 ```
 
 ### dirty event: 'drain' ()
@@ -125,8 +125,6 @@ Emitted once the database file read stream closed.
 Emitted once the database file write stream closed.
 
 ## Tests
-
-[![Build Status](https://travis-ci.org/felixge/node-dirty.png)](https://travis-ci.org/felixge/node-dirty)
 
 Dirty utilizes the [Mocha](http://mochajs.org/) test framework.
 

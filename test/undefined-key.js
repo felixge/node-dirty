@@ -16,5 +16,3 @@ db.set('now', undefined, function() {
 db.set(undefined);
 
 console.log(db.get('now'));
-
-// db = require('Dirty')('undef-key.dirty');

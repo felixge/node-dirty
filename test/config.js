@@ -1,11 +1,10 @@
 var path = require('path'),
-  fs = require('fs'),
-  rimraf = require('rimraf');
+  fs = require('fs')
 
 var TMP_PATH = path.join(__dirname, 'tmp'),
   LIB_DIRTY = path.join(__dirname, '../lib/dirty');
 
-rimraf.sync(TMP_PATH);
+fs.rmSync(TMP_PATH, { recursive: true, force: true });
 fs.mkdirSync(TMP_PATH);
 
 module.exports = {

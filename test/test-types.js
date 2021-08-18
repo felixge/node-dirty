@@ -1,5 +1,4 @@
 var config = require('./config'),
-  fs = require('fs'),
   Dirty = require(config.LIB_DIRTY),
   assert = require('assert');
 
