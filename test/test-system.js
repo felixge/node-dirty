@@ -1,7 +1,7 @@
 var config = require('./config'),
   fs = require('fs'),
   assert = require('assert'),
-  dirty = require(config.LIB_DIRTY);
+  Dirty = require(config.LIB_DIRTY);
 
 describe('test-flush', function() {
   var file = config.TMP_PATH + '/flush.dirty';
@@ -11,7 +11,7 @@ describe('test-flush', function() {
   });
 
   it ('should fire drain event on write', function(done) {
-    var db = dirty(file);
+    var db = new Dirty(file);
     db.set('foo', 'bar');
     db.on('drain', function() {
       done();
@@ -19,7 +19,7 @@ describe('test-flush', function() {
   });
 
   it ('should write to disk appropriately', function(done) {
-    var db = dirty(file);
+    var db = new Dirty(file);
     db.set('foo1', 'bar1');
     db.on('drain', function() {
       var contents = fs.readFileSync(file, 'utf-8');
@@ -36,7 +36,7 @@ describe('test-flush', function() {
 });
 
 describe('test-for-each', function() {
-  var db = dirty();
+  var db = new Dirty();
 
   db.set(1, {test: 'foo'});
   db.set(2, {test: 'bar'});
@@ -55,7 +55,7 @@ describe('test-for-each', function() {
 
 describe('test-load', function() {
   var file = config.TMP_PATH +'/load.dirty',
-    db = dirty(file);
+    db = new Dirty(file);
 
   afterEach(function() {
     fs.unlinkSync(file);
@@ -68,7 +68,7 @@ describe('test-load', function() {
     db.rm(3);
 
     db.on('drain', function() {
-      var db2 = dirty(file);
+      var db2 = new Dirty(file);
 
       db2.on('load', function(length) {
         assert.equal(length, 2);
@@ -81,13 +81,13 @@ describe('test-load', function() {
         done();
       });
     });
-    
+
   });
 });
 
 
 describe('test-size', function() {
-  var db = dirty();
+  var db = new Dirty();
 
   db.set(1, {test: 'foo'});
   db.set(2, {test: 'bar'});
@@ -103,15 +103,15 @@ describe('test-chaining-of-constructor', function() {
   fs.existsSync(file) && fs.unlinkSync(file);
 
   it('should allow .on load to chain to constructor', function() {
-    var db = dirty(file);
+    var db = new Dirty(file);
     db.on('load', function() {
       db.set("x", "y");
       db.set("p", "q");
       db.close();
 
-      db = dirty(file).on('load', function(size) {
-        assert.strictEqual(db.size(), 2);  
-        assert.strictEqual(size, 2);  
+      db = new Dirty(file).on('load', function(size) {
+        assert.strictEqual(db.size(), 2);
+        assert.strictEqual(size, 2);
       });
     });
   });
@@ -119,7 +119,7 @@ describe('test-chaining-of-constructor', function() {
 
 describe('test-update', function () {
   it('should give the updater the value and then set the value to what updater returns', function() {
-    var db = dirty();
+    var db = new Dirty();
     db.set("foo", "bar");
     db.update("foo", function (bar) {
       assert.strictEqual(bar, "bar");

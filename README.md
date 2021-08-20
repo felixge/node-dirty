@@ -24,8 +24,8 @@ but it is a wonderful solution for anything smaller than that.
 ## Tutorial
 
 ```javascript
-  var dirty = require('dirty');
-  var db = dirty('user.db');
+  var Dirty = require('dirty');
+  var db = new Dirty('user.db');
 
   db.on('load', function() {
     db.set('john', {eyes: 'blue'});
@@ -104,7 +104,7 @@ This function is blocking and runs at ~4 Mhz.
 
 ### dirty.close()
 
-Close the dirty db file handle. 
+Close the dirty db file handle.
 
 ### dirty event: 'load' (length)
 
