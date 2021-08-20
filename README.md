@@ -59,14 +59,6 @@ Output:
 Creates a new dirty database. If `path` does not exist yet, it is created. You
 can also omit the `path` if you don't want disk persistence (useful for testing).
 
-The constructor can be invoked in multiple ways:
-
-```javascript
-require('dirty')('my.db');
-require('dirty').Dirty('my.db');
-new (require('dirty'))('my.db');
-new (require('dirty').Dirty)('my.db');
-```
 ### dirty.path
 
 The path of the dirty database.
