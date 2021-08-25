@@ -1,7 +1,7 @@
 var config = require('./config');
   path = require('path'),
   fs = require('fs'),
-  dirty = require(config.LIB_DIRTY),
+  Dirty = require(config.LIB_DIRTY),
   events = require('events'),
   assert = require('assert');
 
@@ -26,7 +26,7 @@ function dirtyAPITests(file) {
     before(cleanup);
 
     describe('dirty constructor', function() {
-      var db = dirty(file);
+      var db = new Dirty(file);
 
       after(cleanup);
 
@@ -35,7 +35,7 @@ function dirtyAPITests(file) {
       });
 
       it('is a dirty', function() {
-        assert.ok(db instanceof dirty);
+        assert.ok(db instanceof Dirty);
       });
 
     });
@@ -45,7 +45,7 @@ function dirtyAPITests(file) {
       afterEach(cleanup);
 
       it('should fire load', function(done) {
-        var db = dirty(file);
+        var db = new Dirty(file);
         db.on('load', function(length) {
           assert.strictEqual(length, 0);
           done();
@@ -53,7 +53,7 @@ function dirtyAPITests(file) {
       });
 
       it('should fire drain after write', function(done) {
-        var db = dirty(file);
+        var db = new Dirty(file);
         db.on('load', function(length) {
           assert.strictEqual(length, 0);
 
@@ -71,7 +71,7 @@ function dirtyAPITests(file) {
       var db;
 
       it('.set should trigger callback', function(done) {
-        db = dirty(file);
+        db = new Dirty(file);
         db.set('key', 'value', function(err) {
           assert.ok(!err);
           done();
@@ -126,7 +126,7 @@ function dirtyAPITests(file) {
           return done();
         }
 
-        db = dirty(file);
+        db = new Dirty(file);
         db.on('load', function(length) {
           assert.strictEqual(length, 2);
           assert.strictEqual(db.get('key'), 'value');
@@ -138,16 +138,16 @@ function dirtyAPITests(file) {
         });
       });
     });
-    
+
     describe('db file close', function(done) {
       after(cleanup);
-      
+
       it('close', function(done) {
         if (!file) {
           console.log('N/A in transient mode');
           return done();
         }
-        var db = dirty(file);
+        var db = new Dirty(file);
         db.on('load', function(length) {
           db.set('close', 'close');
           db.on('drain', function() {

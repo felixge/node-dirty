@@ -1,6 +1,7 @@
 require('../common');
 
-var db = require('Dirty')('undef-key.dirty');
+var Dirty = require('Dirty');
+var db = new Dirty('undef-key.dirty');
 
 db.set('now', Date.now());
 

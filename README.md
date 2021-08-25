@@ -24,8 +24,8 @@ but it is a wonderful solution for anything smaller than that.
 ## Tutorial
 
 ```javascript
-  var dirty = require('dirty');
-  var db = dirty('user.db');
+  var Dirty = require('dirty');
+  var db = new Dirty('user.db');
 
   db.on('load', function() {
     db.set('john', {eyes: 'blue'});
@@ -59,14 +59,6 @@ Output:
 Creates a new dirty database. If `path` does not exist yet, it is created. You
 can also omit the `path` if you don't want disk persistence (useful for testing).
 
-The constructor can be invoked in multiple ways:
-
-```javascript
-require('dirty')('my.db');
-require('dirty').Dirty('my.db');
-new (require('dirty'))('my.db');
-new (require('dirty').Dirty)('my.db');
-```
 ### dirty.path
 
 The path of the dirty database.
@@ -104,7 +96,7 @@ This function is blocking and runs at ~4 Mhz.
 
 ### dirty.close()
 
-Close the dirty db file handle. 
+Close the dirty db file handle.
 
 ### dirty event: 'load' (length)
 
