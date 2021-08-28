@@ -25,6 +25,12 @@ function dirtyAPITests(file) {
 
     before(cleanup);
 
+    it('constructor without new', async function () {
+      const db = Dirty(file);
+      assert(db instanceof Dirty);
+      await new Promise((resolve) => cleanup(resolve));
+    });
+
     describe('dirty constructor', function() {
       var db = new Dirty(file);
 
