@@ -1,28 +1,19 @@
 'use strict';
 
 const config = require('./config');
-const path = require('path');
-const fs = require('fs');
+const fsp = require('fs').promises;
 const Dirty = require(config.LIB_DIRTY);
 const events = require('events');
 const assert = require('assert');
-
-// exists moved from path to fs in node v0.7.1
-// https://raw.github.com/joyent/node/v0.7.1/ChangeLog
-const exists = (fs.exists) ? fs.exists : path.exists;
 
 const dirtyAPITests = (file) => {
   const mode = (file) ? 'persistent' : 'transient';
 
   describe(`dirty api (${mode} mode)`, function () {
-    const cleanup = (done) => {
-      exists(file, (doesExist) => {
-        if (doesExist) {
-          fs.unlinkSync(file);
-        }
-
-        done();
-      });
+    const cleanup = async () => {
+      try {
+        await fsp.unlink(file);
+      } catch (err) { /* intentionally ignored */ }
     };
 
     before(cleanup);
@@ -30,7 +21,7 @@ const dirtyAPITests = (file) => {
     it('constructor without new', async function () {
       const db = Dirty(file); // eslint-disable-line new-cap
       assert(db instanceof Dirty);
-      await new Promise((resolve) => cleanup(resolve));
+      await cleanup();
     });
 
     describe('dirty constructor', function () {
