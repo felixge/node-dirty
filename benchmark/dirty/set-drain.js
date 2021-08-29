@@ -1,6 +1,8 @@
 var config = require('../../test/config');
+const Dirty = require(config.LIB_DIRTY);
+
 var COUNT = 1e4,
-    dirty = require(config.LIB_DIRTY)(config.TMP_PATH + '/benchmark-set-drain.dirty'),
+    dirty = new Dirty(config.TMP_PATH + '/benchmark-set-drain.dirty'),
     util = require('util'),
     drained = false;
 

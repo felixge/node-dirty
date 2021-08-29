@@ -1,5 +1,7 @@
-require('../test/common');
-var db = require('dirty')(TEST_TMP+'/bob.dirty');
+const Dirty = require('dirty');
+const path = require('path');
+
+const db = new Dirty(path.join(__dirname, 'bob.dirty'));
 
 db.on('load', function() {
   db.set('john', {eyes: 'blue'});
