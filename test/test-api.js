@@ -1,19 +1,21 @@
+'use strict';
+
 const config = require('./config');
-path = require('path'),
-fs = require('fs'),
-Dirty = require(config.LIB_DIRTY),
-events = require('events'),
-assert = require('assert');
+const path = require('path');
+const fs = require('fs');
+const Dirty = require(config.LIB_DIRTY);
+const events = require('events');
+const assert = require('assert');
 
 // exists moved from path to fs in node v0.7.1
 // https://raw.github.com/joyent/node/v0.7.1/ChangeLog
 const exists = (fs.exists) ? fs.exists : path.exists;
 
-function dirtyAPITests(file) {
+const dirtyAPITests = (file) => {
   const mode = (file) ? 'persistent' : 'transient';
 
   describe(`dirty api (${mode} mode)`, function () {
-    function cleanup(done) {
+    const cleanup = (done) => {
       exists(file, (doesExist) => {
         if (doesExist) {
           fs.unlinkSync(file);
@@ -21,12 +23,12 @@ function dirtyAPITests(file) {
 
         done();
       });
-    }
+    };
 
     before(cleanup);
 
     it('constructor without new', async function () {
-      const db = Dirty(file);
+      const db = Dirty(file); // eslint-disable-line new-cap
       assert(db instanceof Dirty);
       await new Promise((resolve) => cleanup(resolve));
     });
@@ -36,11 +38,11 @@ function dirtyAPITests(file) {
 
       after(cleanup);
 
-      it('is an event emitter', function () {
+      it('is an event emitter', async function () {
         assert.ok(db instanceof events.EventEmitter);
       });
 
-      it('is a dirty', function () {
+      it('is a dirty', async function () {
         assert.ok(db instanceof Dirty);
       });
     });
@@ -81,15 +83,15 @@ function dirtyAPITests(file) {
         });
       });
 
-      it('.get should return value', function () {
+      it('.get should return value', async function () {
         assert.strictEqual(db.get('key'), 'value');
       });
 
-      it('.path is valid', function () {
+      it('.path is valid', async function () {
         assert.strictEqual(db.path, file);
       });
 
-      it('.forEach runs for all', function () {
+      it('.forEach runs for all', async function () {
         const total = 2; let
           count = 0;
         db.set('key1', 'value1');
@@ -110,7 +112,7 @@ function dirtyAPITests(file) {
         assert.strictEqual(count, total);
       });
 
-      it('.rm removes key/value pair', function () {
+      it('.rm removes key/value pair', async function () {
         db.set('test', 'test');
         assert.strictEqual(db.get('test'), 'test');
         db.rm('test');
@@ -143,7 +145,7 @@ function dirtyAPITests(file) {
       });
     });
 
-    describe('db file close', function (done) {
+    describe('db file close', function () {
       after(cleanup);
 
       it('close', function (done) {
@@ -165,7 +167,7 @@ function dirtyAPITests(file) {
       });
     });
   });
-}
+};
 
 dirtyAPITests('');
 dirtyAPITests(`${config.TMP_PATH}/apitest.dirty`);

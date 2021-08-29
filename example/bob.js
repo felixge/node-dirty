@@ -1,3 +1,6 @@
+'use strict';
+
+// eslint-disable-next-line node/no-missing-require
 const Dirty = require('dirty');
 const path = require('path');
 

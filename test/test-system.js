@@ -1,13 +1,16 @@
+'use strict';
+
 const config = require('./config');
 const fs = require('fs');
+const fsp = fs.promises;
 const assert = require('assert');
 const Dirty = require(config.LIB_DIRTY);
 
 describe('test-flush', function () {
   const file = `${config.TMP_PATH}/flush.dirty`;
 
-  afterEach(function () {
-    fs.unlinkSync(file);
+  afterEach(async function () {
+    await fsp.unlink(file);
   });
 
   it('should fire drain event on write', function (done) {
@@ -41,7 +44,7 @@ describe('test-for-each', function () {
   db.set(2, {test: 'bar'});
   db.set(3, {test: 'foobar'});
 
-  it('should return each doc key and contents', function () {
+  it('should return each doc key and contents', async function () {
     let i = 0;
     db.forEach((key, doc) => {
       i++;
@@ -56,8 +59,8 @@ describe('test-load', function () {
   const file = `${config.TMP_PATH}/load.dirty`;
   const db = new Dirty(file);
 
-  afterEach(function () {
-    fs.unlinkSync(file);
+  afterEach(async function () {
+    await fsp.unlink(file);
   });
 
   it('should load after write to disk', function (done) {
@@ -91,7 +94,7 @@ describe('test-size', function () {
   db.set(2, {test: 'bar'});
   db.set(3, {test: 'foobar'});
 
-  it('should be equal to number of keys set', function () {
+  it('should be equal to number of keys set', async function () {
     assert.equal(db.size(), 3);
   });
 });
@@ -114,7 +117,7 @@ describe('test-chaining-of-constructor', function () {
 });
 
 describe('test-update', function () {
-  it('should give the updater the value and then set the value to what updater returns', function () {
+  it('updater receives old value and sets new value', async function () {
     const db = new Dirty();
     db.set('foo', 'bar');
     db.update('foo', (bar) => {

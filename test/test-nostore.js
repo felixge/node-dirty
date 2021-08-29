@@ -1,7 +1,8 @@
+'use strict';
+
 const config = require('./config');
 const Dirty = require(config.LIB_DIRTY);
 const assert = require('assert');
-const fs = require('fs');
 
 describe('test-load-event', function () {
   it('should fire load event', function (done) {
