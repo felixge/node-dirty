@@ -102,18 +102,16 @@ describe('test-chaining-of-constructor', function() {
   var file = config.TMP_PATH + '/chain.dirty';
   fs.existsSync(file) && fs.unlinkSync(file);
 
-  it('should allow .on load to chain to constructor', function() {
+  it('should allow .on load to chain to constructor', async function() {
     var db = new Dirty(file);
-    db.on('load', function() {
-      db.set("x", "y");
-      db.set("p", "q");
-      db.close();
+    await new Promise((resolve) => db.on('load', resolve));
+    db.set("x", "y");
+    db.set("p", "q");
+    db.close();
 
-      db = new Dirty(file).on('load', function(size) {
-        assert.strictEqual(db.size(), 2);
-        assert.strictEqual(size, 2);
-      });
-    });
+    const size = await new Promise((resolve) => { db = new Dirty(file).on('load', resolve); });
+    assert.strictEqual(db.size(), 2);
+    assert.strictEqual(size, 2);
   });
 });
 
