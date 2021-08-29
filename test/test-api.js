@@ -1,139 +1,131 @@
-var config = require('./config');
-  path = require('path'),
-  fs = require('fs'),
-  Dirty = require(config.LIB_DIRTY),
-  events = require('events'),
-  assert = require('assert');
+'use strict';
 
-// exists moved from path to fs in node v0.7.1
-// https://raw.github.com/joyent/node/v0.7.1/ChangeLog
-var exists = (fs.exists) ? fs.exists : path.exists;
+const config = require('./config');
+const fsp = require('fs').promises;
+const Dirty = require(config.LIB_DIRTY);
+const events = require('events');
+const assert = require('assert');
 
-function dirtyAPITests(file) {
-  var mode = (file) ? 'persistent' : 'transient';
+const dirtyAPITests = (file) => {
+  const mode = (file) ? 'persistent' : 'transient';
 
-  describe('dirty api (' + mode + ' mode)', function() {
-    function cleanup(done) {
-      exists(file, function(doesExist) {
-        if (doesExist) {
-          fs.unlinkSync(file);
-        }
-
-        done();
-      });
-    }
+  describe(`dirty api (${mode} mode)`, function () {
+    const cleanup = async () => {
+      try {
+        await fsp.unlink(file);
+      } catch (err) { /* intentionally ignored */ }
+    };
 
     before(cleanup);
 
     it('constructor without new', async function () {
-      const db = Dirty(file);
+      const db = Dirty(file); // eslint-disable-line new-cap
       assert(db instanceof Dirty);
-      await new Promise((resolve) => cleanup(resolve));
+      await cleanup();
     });
 
-    describe('dirty constructor', function() {
-      var db = new Dirty(file);
+    describe('dirty constructor', function () {
+      let db;
 
+      before(async function () { db = new Dirty(file); });
       after(cleanup);
 
-      it('is an event emitter', function() {
+      it('is an event emitter', async function () {
         assert.ok(db instanceof events.EventEmitter);
       });
 
-      it('is a dirty', function() {
+      it('is a dirty', async function () {
         assert.ok(db instanceof Dirty);
       });
-
     });
 
-    describe('events', function() {
-
+    describe('events', function () {
       afterEach(cleanup);
 
-      it('should fire load', function(done) {
-        var db = new Dirty(file);
-        db.on('load', function(length) {
+      it('should fire load', function (done) {
+        const db = new Dirty(file);
+        db.on('load', (length) => {
           assert.strictEqual(length, 0);
           done();
         });
       });
 
-      it('should fire drain after write', function(done) {
-        var db = new Dirty(file);
-        db.on('load', function(length) {
+      it('should fire drain after write', function (done) {
+        const db = new Dirty(file);
+        db.on('load', (length) => {
           assert.strictEqual(length, 0);
 
           db.set('key', 'value');
-          db.on('drain', function() {
+          db.on('drain', () => {
             done();
           });
-
         });
       });
     });
 
-    describe('accessors', function(done) {
+    describe('accessors', function (done) {
       after(cleanup);
-      var db;
+      let db;
 
-      it('.set should trigger callback', function(done) {
+      it('.set should trigger callback', function (done) {
         db = new Dirty(file);
-        db.set('key', 'value', function(err) {
+        db.set('key', 'value', (err) => {
           assert.ok(!err);
           done();
         });
       });
 
-      it('.get should return value', function() {
+      it('.get should return value', async function () {
         assert.strictEqual(db.get('key'), 'value');
       });
 
-      it('.path is valid', function() {
+      it('.path is valid', async function () {
         assert.strictEqual(db.path, file);
       });
 
-      it('.forEach runs for all', function() {
-        var total = 2, count = 0;
+      it('.forEach runs for all', async function () {
+        const total = 2; let
+          count = 0;
         db.set('key1', 'value1');
         db.set('delete', 'me');
 
         db.rm('delete');
 
-        var keys = ['key', 'key1'];
-        var vals = ['value', 'value1'];
+        const keys = ['key', 'key1'];
+        const vals = ['value', 'value1'];
 
-        db.forEach(function(key, val) {
+        db.forEach((key, val) => {
           assert.strictEqual(key, keys[count]);
           assert.strictEqual(val, vals[count]);
 
-          count ++;
+          count++;
         });
 
         assert.strictEqual(count, total);
       });
 
-      it('.rm removes key/value pair', function() {
+      it('.rm removes key/value pair', async function () {
         db.set('test', 'test');
         assert.strictEqual(db.get('test'), 'test');
         db.rm('test');
         assert.strictEqual(db.get('test'), undefined);
       });
 
-      it('.rm of unknown key is a no-op', async function() {
+      it('.rm of unknown key is a no-op', async function () {
         db.rm('does not exist');
         const got = [];
         db.forEach((k, v) => { got.push([k, v]); });
         assert.deepStrictEqual(got, [['key', 'value'], ['key1', 'value1']]);
       });
 
-      it('will reload file from disk', function(done) {
+      it('will reload file from disk', function (done) {
         if (!file) {
           console.log('N/A in transient mode');
           return done();
         }
 
         db = new Dirty(file);
-        db.on('load', function(length) {
+        db.on('load', (length) => {
           assert.strictEqual(length, 2);
           assert.strictEqual(db.get('key'), 'value');
           assert.strictEqual(db.get('key1'), 'value1');
@@ -145,30 +137,29 @@ function dirtyAPITests(file) {
       });
     });
 
-    describe('db file close', function(done) {
+    describe('db file close', function () {
       after(cleanup);
 
-      it('close', function(done) {
+      it('close', function (done) {
         if (!file) {
           console.log('N/A in transient mode');
           return done();
         }
-        var db = new Dirty(file);
-        db.on('load', function(length) {
+        const db = new Dirty(file);
+        db.on('load', (length) => {
           db.set('close', 'close');
-          db.on('drain', function() {
+          db.on('drain', () => {
             db.close();
           });
         });
 
-        db.on('write_close',function() {
+        db.on('write_close', () => {
           done();
         });
       });
     });
-
   });
-}
+};
 
 dirtyAPITests('');
-dirtyAPITests(config.TMP_PATH + '/apitest.dirty');
+dirtyAPITests(`${config.TMP_PATH}/apitest.dirty`);

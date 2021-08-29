@@ -1,19 +1,21 @@
-var config = require('./config'),
-  fs = require('fs'),
-  Dirty = require(config.LIB_DIRTY),
-  assert = require('assert');
+'use strict';
 
-describe.skip('test-types', function() {
-  var db = new Dirty(config.TMP_PATH + '/test-types.dirty');
+const config = require('./config');
+const Dirty = require(config.LIB_DIRTY);
+const assert = require('assert');
 
-  describe('keys', function() {
-    it('should prevent storage of an undefined key', function() {
+describe.skip('test-types', function () {
+  let db;
+
+  before(async function () { db = new Dirty(`${config.TMP_PATH}/test-types.dirty`); });
+
+  describe('keys', function () {
+    it('should prevent storage of an undefined key', async function () {
       db.set(undefined, 'value');
     });
 
-    it('should not return an undefined key', function() {
+    it('should not return an undefined key', async function () {
       assert(!db.get(undefined));
     });
   });
-
 });

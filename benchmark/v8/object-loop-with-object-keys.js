@@ -1,21 +1,21 @@
-var COUNT = 1e6,
-    util = require('util'),
-    o = {};
+'use strict';
 
-for (var i = 0; i < COUNT; i++) {
+const COUNT = 1e6;
+const o = {};
+
+for (let i = 0; i < COUNT; i++) {
   o[i] = i;
 }
 
-var start = +new Date, keys = Object.keys(o), length = keys.length;
-for (var i = 0; i < keys.length; i++) {
-  if (o[keys[i]] != i) {
+const start = +new Date();
+const keys = Object.keys(o);
+for (let i = 0; i < keys.length; i++) {
+  if (o[keys[i]] !== i) {
     throw new Error('implementation fail');
   }
 }
 
-var ms = +new Date - start,
-    mhz = ((COUNT / (ms / 1000)) / 1e6).toFixed(2),
-    million = COUNT / 1e6;
-
-// Can't use console.log() since since I also test this in ancient node versions
-util.log(mhz+' Mhz ('+million+' million in '+ms+' ms)');
+const ms = +new Date() - start;
+const mhz = ((COUNT / (ms / 1000)) / 1e6).toFixed(2);
+const million = COUNT / 1e6;
+console.log(`${mhz} Mhz (${million} million in ${ms} ms)`);
