@@ -1,50 +1,49 @@
-var config = require('./config'),
-  fs = require('fs'),
-  assert = require('assert'),
-  Dirty = require(config.LIB_DIRTY);
+const config = require('./config');
+const fs = require('fs');
+const assert = require('assert');
+const Dirty = require(config.LIB_DIRTY);
 
-describe('test-flush', function() {
-  var file = config.TMP_PATH + '/flush.dirty';
+describe('test-flush', function () {
+  const file = `${config.TMP_PATH}/flush.dirty`;
 
-  afterEach(function() {
+  afterEach(function () {
     fs.unlinkSync(file);
   });
 
-  it ('should fire drain event on write', function(done) {
-    var db = new Dirty(file);
+  it('should fire drain event on write', function (done) {
+    const db = new Dirty(file);
     db.set('foo', 'bar');
-    db.on('drain', function() {
+    db.on('drain', () => {
       done();
     });
   });
 
-  it ('should write to disk appropriately', function(done) {
-    var db = new Dirty(file);
+  it('should write to disk appropriately', function (done) {
+    const db = new Dirty(file);
     db.set('foo1', 'bar1');
-    db.on('drain', function() {
-      var contents = fs.readFileSync(file, 'utf-8');
+    db.on('drain', () => {
+      const contents = fs.readFileSync(file, 'utf-8');
 
       assert.strictEqual(
-        contents,
-        JSON.stringify({key: 'foo1', val: 'bar1'})+'\n'
+          contents,
+          `${JSON.stringify({key: 'foo1', val: 'bar1'})}\n`
       );
 
       done();
     });
   });
-
 });
 
-describe('test-for-each', function() {
-  var db = new Dirty();
+describe('test-for-each', function () {
+  const db = new Dirty();
 
   db.set(1, {test: 'foo'});
   db.set(2, {test: 'bar'});
   db.set(3, {test: 'foobar'});
 
-  it('should return each doc key and contents', function() {
-    var i = 0;
-    db.forEach(function(key, doc) {
+  it('should return each doc key and contents', function () {
+    let i = 0;
+    db.forEach((key, doc) => {
       i++;
       assert.equal(key, i);
       assert.strictEqual(doc, db.get(key));
@@ -53,24 +52,24 @@ describe('test-for-each', function() {
   });
 });
 
-describe('test-load', function() {
-  var file = config.TMP_PATH +'/load.dirty',
-    db = new Dirty(file);
+describe('test-load', function () {
+  const file = `${config.TMP_PATH}/load.dirty`;
+  const db = new Dirty(file);
 
-  afterEach(function() {
+  afterEach(function () {
     fs.unlinkSync(file);
   });
 
-  it('should load after write to disk', function(done) {
+  it('should load after write to disk', function (done) {
     db.set(1, 'A');
     db.set(2, 'B');
     db.set(3, 'C');
     db.rm(3);
 
-    db.on('drain', function() {
-      var db2 = new Dirty(file);
+    db.on('drain', () => {
+      const db2 = new Dirty(file);
 
-      db2.on('load', function(length) {
+      db2.on('load', (length) => {
         assert.equal(length, 2);
 
         assert.strictEqual(db2.get(1), 'A');
@@ -81,32 +80,31 @@ describe('test-load', function() {
         done();
       });
     });
-
   });
 });
 
 
-describe('test-size', function() {
-  var db = new Dirty();
+describe('test-size', function () {
+  const db = new Dirty();
 
   db.set(1, {test: 'foo'});
   db.set(2, {test: 'bar'});
   db.set(3, {test: 'foobar'});
 
-  it('should be equal to number of keys set', function() {
+  it('should be equal to number of keys set', function () {
     assert.equal(db.size(), 3);
   });
 });
 
-describe('test-chaining-of-constructor', function() {
-  var file = config.TMP_PATH + '/chain.dirty';
+describe('test-chaining-of-constructor', function () {
+  const file = `${config.TMP_PATH}/chain.dirty`;
   fs.existsSync(file) && fs.unlinkSync(file);
 
-  it('should allow .on load to chain to constructor', async function() {
-    var db = new Dirty(file);
+  it('should allow .on load to chain to constructor', async function () {
+    let db = new Dirty(file);
     await new Promise((resolve) => db.on('load', resolve));
-    db.set("x", "y");
-    db.set("p", "q");
+    db.set('x', 'y');
+    db.set('p', 'q');
     db.close();
 
     const size = await new Promise((resolve) => { db = new Dirty(file).on('load', resolve); });
@@ -116,13 +114,13 @@ describe('test-chaining-of-constructor', function() {
 });
 
 describe('test-update', function () {
-  it('should give the updater the value and then set the value to what updater returns', function() {
-    var db = new Dirty();
-    db.set("foo", "bar");
-    db.update("foo", function (bar) {
-      assert.strictEqual(bar, "bar");
-      return "baz";
+  it('should give the updater the value and then set the value to what updater returns', function () {
+    const db = new Dirty();
+    db.set('foo', 'bar');
+    db.update('foo', (bar) => {
+      assert.strictEqual(bar, 'bar');
+      return 'baz';
     });
-    assert.strictEqual(db.get("foo"), "baz");
+    assert.strictEqual(db.get('foo'), 'baz');
   });
 });

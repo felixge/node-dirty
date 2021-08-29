@@ -1,25 +1,25 @@
-var config = require('../../test/config');
+const config = require('../../test/config');
 const Dirty = require(config.LIB_DIRTY);
 
-var COUNT = 1e4,
-    DB_FILE = config.TMP_PATH + '/benchmark-set-drain.dirty',
-    dirty = new Dirty(DB_FILE),
-    util = require('util'),
-    loaded = false;
+const COUNT = 1e4;
+const DB_FILE = `${config.TMP_PATH}/benchmark-set-drain.dirty`;
+const dirty = new Dirty(DB_FILE);
+const util = require('util');
+let loaded = false;
 
-for (var i = 0; i < COUNT; i++) {
+for (let i = 0; i < COUNT; i++) {
   dirty.set(i, i);
 }
 
-dirty.on('drain', function() {
-  var start = Date.now();
-  new Dirty(DB_FILE).on('load', function(length) {
-    var ms = Date.now() - start,
-        mhz = ((COUNT / (ms / 1000)) / 1e3).toFixed(2),
-        million = COUNT / 1e6;
+dirty.on('drain', () => {
+  const start = Date.now();
+  new Dirty(DB_FILE).on('load', (length) => {
+    const ms = Date.now() - start;
+    const mhz = ((COUNT / (ms / 1000)) / 1e3).toFixed(2);
+    const million = COUNT / 1e6;
 
     // Can't use console.log() since since I also test this in ancient node versions
-    util.log(mhz+' Hz ('+million+' million in '+ms+' ms)');
+    util.log(`${mhz} Hz (${million} million in ${ms} ms)`);
 
     loaded = true;
 
@@ -27,6 +27,6 @@ dirty.on('drain', function() {
   });
 });
 
-process.on('exit', function() {
+process.on('exit', () => {
   assert.ok(loaded);
 });
