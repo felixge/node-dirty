@@ -25,8 +25,9 @@ const dirtyAPITests = (file) => {
     });
 
     describe('dirty constructor', function () {
-      const db = new Dirty(file);
+      let db;
 
+      before(async function () { db = new Dirty(file); });
       after(cleanup);
 
       it('is an event emitter', async function () {

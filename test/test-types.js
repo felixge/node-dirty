@@ -5,7 +5,9 @@ const Dirty = require(config.LIB_DIRTY);
 const assert = require('assert');
 
 describe.skip('test-types', function () {
-  const db = new Dirty(`${config.TMP_PATH}/test-types.dirty`);
+  let db;
+
+  before(async function () { db = new Dirty(`${config.TMP_PATH}/test-types.dirty`); });
 
   describe('keys', function () {
     it('should prevent storage of an undefined key', async function () {
